@@ -40,9 +40,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Large source media — never commit; keep masters outside the repo and stream
-# the encoded versions from a CDN in production.
+# Large source media — masters never belong in the repo; they live in
+# ../_source-media/ and are re-encoded from there.
 *.mov
 *.mp4
 *.webm
-/public/video/
+
+# The web-encoded files the site actually streams are the exception: they are
+# small (7.5 MB all told) and a clone or a deploy without them shows a broken
+# player, so they are tracked. Captions are plain text and always tracked.
+!/public/video/*.mp4
