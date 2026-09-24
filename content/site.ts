@@ -1,0 +1,273 @@
+import { regions } from "@/content/regions";
+
+/** Membership sign-up form. Swap this one constant if the form is ever replaced. */
+export const membershipFormUrl =
+  "https://docs.google.com/forms/d/e/1FAIpQLSeIGvvaSnKmKiFZMC_Q8-JM5GO4uN0d_YE1qhgiUuEinjqvkA/viewform";
+
+/**
+ * The bar's own map of the page.
+ *
+ * `sections` lists the ids an entry stands for, which is what lets the bar mark
+ * the section the reader is currently in — add a section to the page, name it
+ * here, and the marker follows it with nothing else to change. Links are
+ * root-relative (`/#what`) so they still work from a page other than the home
+ * one, such as Events.
+ */
+export type NavItem = {
+  key: string;
+  label: string;
+  href?: string;
+  sections: string[];
+  children?: { label: string; href: string; section: string; note: string }[];
+};
+
+export const nav: NavItem[] = [
+  { key: "about", label: "About Us", href: "/#about", sections: ["top", "story"] },
+  {
+    key: "inside",
+    label: "Inside TGVA",
+    sections: ["what", "vision", "team"],
+    children: [
+      {
+        label: "What We Do",
+        href: "/#what",
+        section: "what",
+        note: "Operations, routes, events and the pilot community",
+      },
+      {
+        label: "Vision & Mission",
+        href: "/#vision",
+        section: "vision",
+        note: "What we fly for, and the promises behind it",
+      },
+      {
+        label: "Meet the Staff",
+        href: "/#team",
+        section: "team",
+        note: "The people who keep the airline running",
+      },
+    ],
+  },
+  { key: "where", label: "Where We Fly", href: "/#wherewefly", sections: ["wherewefly"] },
+  { key: "fleet", label: "Our Fleet", href: "/#fleet", sections: ["fleet"] },
+];
+
+/**
+ * Community channels, shown as icons in the bar. A channel with no URL yet is
+ * left out rather than linked nowhere — fill in the href and it appears.
+ */
+export const social = [
+  { icon: "discord" as const, label: "Discord", href: "" },
+  { icon: "instagram" as const, label: "Instagram", href: "https://www.instagram.com/if.tgva/" },
+];
+
+/**
+ * Everything below is the team's own copy, transcribed from their document.
+ * Nothing here is written for them: if a line is missing, the section it
+ * belongs to says so rather than filling the gap.
+ */
+export const about = {
+  eyebrow: "WELCOME TO THAI AIRWAYS VIRTUAL",
+  heading: "About Us",
+  paragraphs: [
+    "Thai Airways Virtual (TGVA) is a virtual airline and aviation community created for people who share a passion for flying, aviation, and the Infinite Flight experience.",
+    "Inspired by the identity and hospitality of Thailand, TGVA brings the spirit of \u201cSmooth as Silk\u201d into the virtual skies. We aim to provide an enjoyable, professional, and welcoming environment where pilots can fly, connect, and grow together.",
+  ],
+  actions: [
+    { href: "#what", label: "WHAT WE DO", variant: "outline" as const },
+    { href: "#story", label: "OUR STORY", variant: "outline" as const },
+    { href: "#wherewefly", label: "WHERE WE FLY", variant: "outline" as const },
+  ],
+};
+
+export const story = {
+  eyebrow: "OUR STORY",
+  heading: "Smooth as Silk.",
+  /** Each column carries one idea, so the label tells the reader what it answers. */
+  columns: [
+    {
+      label: "WHERE WE OPERATE",
+      body: "Our operations connect pilots with destinations across Thailand and Asia, offering scheduled flights, special events, group flights, and opportunities to experience a wide variety of routes and aircraft.",
+    },
+    {
+      label: "MORE THAN AN AIRLINE",
+      body: "But TGVA is more than just a virtual airline. We are a community built on passion, teamwork, professionalism, and friendship. Every pilot has a role in shaping our journey and contributing to the future of TGVA.",
+    },
+    {
+      label: "WHERE WE ARE HEADING",
+      body: "As we continue to grow, our goal is to build a strong and respected virtual aviation community that proudly represents the spirit of Thailand while connecting pilots from around the world.",
+    },
+  ],
+};
+
+/**
+ * The team, as the document lists them. A post with no name against it yet is
+ * shown as open rather than left off — the structure is the airline's, and the
+ * names arrive as they are appointed.
+ */
+export const team = [
+  {
+    role: "Chief Executive Officer",
+    name: "Tjb0709",
+    blurb: "Leads TGVA and sets the direction the community flies in.",
+  },
+  {
+    role: "Chief Operating Officer",
+    name: "IFTH-Prichachan",
+    blurb: "Runs the airline day to day and keeps operations moving.",
+  },
+  {
+    role: "Chief Pilot",
+    name: null,
+    blurb: "Owns flight standards and how every TGVA route is flown.",
+  },
+  {
+    role: "Human Resources Director",
+    name: null,
+    blurb: "Looks after the pilots — joining, records and the people side of the community.",
+  },
+  {
+    role: "Chief Marketing Officer",
+    name: null,
+    blurb: "Brand, media and everything the outside world sees of TGVA.",
+  },
+];
+
+/**
+ * `emphasis` is the part of the title drawn in gold on the card — the word the
+ * service is actually about. It must be a substring of `title`; the card splits
+ * the title on it, so the copy itself stays one string with nothing to keep in
+ * step.
+ */
+export const services = {
+  lead: "More than a flight. It\u2019s the TGVA experience.",
+  intro:
+    "At Thai Airways Virtual (TGVA), we aim to create an immersive and enjoyable virtual aviation experience for pilots around the world. From scheduled flights to community events, every part of TGVA is designed to bring aviation enthusiasts together.",
+  items: [
+    {
+      title: "Virtual Airline Operations",
+      emphasis: "Airline Operations",
+      blurb:
+        "Experience the world of Thai aviation through our virtual airline operations. Pilots can operate TGVA flights across our domestic and international network while representing the TGVA brand in the virtual skies.",
+    },
+    {
+      title: "Domestic & International Routes",
+      emphasis: "International Routes",
+      blurb:
+        "Explore destinations across Thailand, Asia, and beyond. Our route network gives pilots the opportunity to experience a wide variety of airports, aircraft, and flight environments.",
+    },
+    {
+      title: "Scheduled & Special Flights",
+      emphasis: "Special Flights",
+      blurb:
+        "Take part in regular operations as well as specially organised flights and group events. Fly together with fellow TGVA pilots and experience the journey as a community.",
+    },
+    {
+      title: "Infinite Flight Operations",
+      emphasis: "Infinite Flight",
+      blurb:
+        "TGVA is built around the Infinite Flight experience, allowing aviation enthusiasts to enjoy realistic virtual flying while becoming part of an international pilot community.",
+    },
+    {
+      title: "Pilot Community",
+      emphasis: "Community",
+      blurb:
+        "Join a community of aviation enthusiasts who share the same passion for flying. Connect with fellow pilots, exchange experiences, and enjoy virtual aviation together.",
+    },
+    {
+      title: "Pilot Development & Achievements",
+      emphasis: "Achievements",
+      blurb:
+        "TGVA encourages pilots to develop their skills and become more active within the community through flight participation, achievements, ranks, and other opportunities.",
+    },
+    {
+      title: "Community Events",
+      emphasis: "Events",
+      blurb:
+        "From group flights to special aviation events, TGVA regularly brings pilots together to experience memorable flights and create lasting connections.",
+    },
+    {
+      title: "Partnerships & Community Connections",
+      emphasis: "Community Connections",
+      blurb:
+        "We work with other Virtual Airlines and aviation communities to create opportunities for collaboration, joint events, and shared experiences across the virtual aviation world.",
+    },
+  ],
+  commitment: {
+    label: "OUR COMMITMENT",
+    body: "At TGVA, every service has one purpose \u2014 to make every flight enjoyable, every journey meaningful, and every pilot feel part of something bigger.",
+  },
+};
+
+/** Set as a quotation, so it carries an attribution rather than a label. */
+export const vision = {
+  statement:
+    "To be a leading virtual airline that connects aviation enthusiasts worldwide through professionalism, Thai hospitality, and a passion for flight.",
+  attribution: "Thai Airways Virtual",
+  role: "Our vision",
+};
+
+export const mission = [
+  "Deliver authentic and enjoyable virtual aviation experiences that reflect the pride of Thai Airways.",
+  "Provide training, events, and opportunities that inspire growth and professionalism among members.",
+  "Build a welcoming community founded on respect, teamwork, and the spirit of Thai hospitality.",
+  "Connect the world through virtual skies, while fostering a passion for aviation in future generations.",
+];
+
+/**
+ * Built from the route network so the ticker can never drift out of sync with
+ * it — add a destination in regions.ts and it appears here automatically.
+ */
+export const destinationTicker = [
+  "BANGKOK",
+  ...regions.flatMap((region) => region.destinations.map((destination) => destination.city)),
+];
+
+/**
+ * Footer link columns. A link with an empty `href` has no URL yet and renders
+ * as plain text rather than one that goes nowhere — fill it in and it becomes
+ * a link with nothing else to change.
+ */
+export const footerColumns = [
+  {
+    title: "Explore",
+    links: [
+      { href: "/#about", label: "About Us" },
+      { href: "/#what", label: "What We Do" },
+      { href: "/#wherewefly", label: "Where We Fly" },
+      { href: "/#fleet", label: "Our Fleet" },
+    ],
+  },
+  {
+    title: "Community",
+    links: [
+      { href: "/#story", label: "Our Story" },
+      { href: "/#team", label: "Meet the Staff" },
+      { href: "/#vision", label: "Vision & Mission" },
+      { href: "/events", label: "Events" },
+    ],
+  },
+  {
+    /* Discord and Instagram are not listed here: the footer draws them as
+       marks under the columns, where an icon says more than its own name. */
+    title: "Connect",
+    links: [
+      { href: membershipFormUrl, label: "Become a member" },
+      { href: "/events", label: "Events" },
+    ],
+  },
+];
+
+/** A virtual airline has to say so plainly. */
+export const footerNote =
+  "Thai Airways Virtual is a non-profit flight simulation community. It is not affiliated with Thai Airways International Public Company Limited.";
+
+export const join = {
+  eyebrow: "THIS IS TGVA",
+  heading: "This is where your journey begins.",
+  body: "Fly the Smooth as Silk. Fly with TGVA.",
+  actions: [
+    { href: membershipFormUrl, label: "BECOME A MEMBER", variant: "primary" as const },
+    { href: "#wherewefly", label: "EXPLORE THE NETWORK", variant: "outline" as const },
+  ],
+};
