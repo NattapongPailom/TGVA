@@ -17,13 +17,31 @@ export default function HomePage() {
       <LoadingScreen />
       <SiteHeader />
       <EventAnnouncement />
-      <main>
+      {/* The order is the argument. A visitor who has never heard of TGVA is
+          deciding whether the airline is real, so the evidence leads: the
+          destinations are named, then the network is drawn from true
+          coordinates, then its totals, then the story and the people — and the
+          fleet last, drawn to published dimensions, as the final piece of proof
+          before the invitation asks for anything.
+
+          The fleet sits here for the grounds as much as the argument. It is the
+          one Orchid Deep block in the second half, and without it the page ran
+          white → white → white → white into the light closing block and then
+          straight into the abyss footer. The last three blocks now alternate
+          hard — deep, light, abyss — which is the strongest close the two
+          grounds can make.
+
+          The cost is that the summary band states the fleet's count before the
+          fleet is shown. That reads as a figure the fleet then delivers on
+          rather than one it has already earned; the destination and country
+          counts still total what the map has just shown. */}
+      <main id="main">
         <WhoWeAre />
-        <OurStory />
         <DestinationTicker />
-        <InsideTgva />
-        <SilkBand />
         <WhereWeFly />
+        <SilkBand />
+        <OurStory />
+        <InsideTgva />
         <OurFleet />
       </main>
 

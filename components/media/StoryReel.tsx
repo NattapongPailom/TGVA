@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { VideoControls } from "@/components/media/VideoControls";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PauseIcon, PlayIcon } from "@/components/media/TransportIcons";
 
 type Props = {
@@ -92,9 +93,8 @@ export function StoryReel({ src, poster, captions, eyebrow, heading }: Props) {
         className="block h-full w-full cursor-pointer object-cover"
       >
         {/* The reel can be unmuted from the control bar, so its audio is real
-            content and owes a caption track. The browser draws the cues itself
-            once the track's mode is `showing`; the CC button in the bar is what
-            sets it. */}
+            content and owes a caption track. The control bar draws the cues
+            itself, above its own controls, when the CC button turns it on. */}
         {captions ? (
           <track kind="captions" src={captions} srcLang="en" label="English" />
         ) : null}
@@ -103,14 +103,14 @@ export function StoryReel({ src, poster, captions, eyebrow, heading }: Props) {
       {/* Title card — dims the frame while it holds, then releases it. */}
       <div
         aria-hidden={!introVisible}
-        className={`pointer-events-none absolute inset-0 flex flex-col justify-end gap-3 px-12 pb-20 transition-opacity duration-1000 ${
+        className={`pointer-events-none tgva-gutter absolute inset-0 flex flex-col justify-end gap-3 pb-20 transition-opacity duration-1000 ${
           introVisible ? "opacity-100" : "opacity-0"
         }`}
       >
         <div className="absolute inset-0 bg-brand-deep/55" />
         <div className="absolute inset-0 bg-linear-to-t from-ink/70 via-transparent to-transparent" />
         <div className="relative mx-auto flex w-full max-w-[1240px] flex-col gap-3">
-          <p className="font-display text-xs font-bold tracking-[0.26em] text-gold">{eyebrow}</p>
+          <Eyebrow tone="gold">{eyebrow}</Eyebrow>
           <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)] font-extrabold leading-none tracking-[-0.03em] text-white [text-shadow:0_2px_30px_rgba(21,14,34,0.55)]">
             {heading}
           </h2>

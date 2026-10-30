@@ -16,7 +16,7 @@ export function OurStory() {
         heading={story.heading}
       />
 
-      <div className="mx-auto mt-14 grid max-w-[1240px] grid-cols-[repeat(auto-fit,minmax(min(100%,19rem),1fr))] gap-x-14 gap-y-11 px-12">
+      <div className="mx-auto mt-14 grid max-w-[1240px] grid-cols-[repeat(auto-fit,minmax(min(100%,19rem),1fr))] gap-x-14 gap-y-11 tgva-gutter">
         {story.columns.map((column, i) => (
           <Reveal key={column.label} index={i}>
             <article>

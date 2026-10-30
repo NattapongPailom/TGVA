@@ -3,96 +3,75 @@ import { fleet } from "@/content/fleet";
 import { Reveal } from "@/components/motion/Reveal";
 
 /**
- * The band between the people and the network.
+ * The network, totalled.
  *
- * Every figure below is counted from the content files rather than written
- * here, so adding a destination or an aircraft type moves the number with it
- * and there is nowhere for the two to drift apart.
+ * It arrives after the chart and the fleet, so every figure here is a count of
+ * something the reader has just been shown rather than a claim made in advance.
+ *
+ * Every figure is counted from the content files rather than written here, so
+ * adding a destination or an aircraft type moves the number with it and there
+ * is nowhere for the two to drift apart.
  */
 const destinations = regions.flatMap((region) => region.destinations);
 const countries = new Set(destinations.map((destination) => destination.country)).size;
-const makers = [...new Set(fleet.map((aircraft) => aircraft.maker))].join(", ");
+const makers = [...new Set(fleet.map((aircraft) => aircraft.maker))].join(" · ");
 const regionNames = regions
   .map((region) => region.title.charAt(0) + region.title.slice(1).toLowerCase())
-  .join(", ");
+  .join(" · ");
 
+/**
+ * `figure` marks a real count, which is what earns Plex Mono. The last entry is
+ * a name, not a measurement, so it is set in the display face like any other
+ * proper noun.
+ */
 const facts = [
-  {
-    label: `${destinations.length} Destinations`,
-    detail: `Across ${countries} countries`,
-    icon: "pin" as const,
-  },
-  {
-    label: `${fleet.length} Aircraft Types`,
-    detail: makers,
-    icon: "tail" as const,
-  },
-  {
-    label: `${regions.length} Regions`,
-    detail: regionNames,
-    icon: "globe" as const,
-  },
-  {
-    label: "Infinite Flight",
-    detail: "Where every TGVA flight is flown",
-    icon: "device" as const,
-  },
+  { value: String(destinations.length), label: "Destinations", detail: `In ${countries} countries`, figure: true },
+  { value: String(fleet.length), label: "Aircraft types", detail: makers, figure: true },
+  { value: String(regions.length), label: "Regions", detail: regionNames, figure: true },
+  { value: "Infinite Flight", label: "Flown in", detail: "Every TGVA flight, without exception", figure: false },
 ];
 
 export function SilkBand() {
   return (
-    <section className="tgva-band" aria-label="Thai Airways Virtual at a glance">
+    <section className="tgva-band" aria-label="The TGVA network, totalled">
       <div className="tgva-band-rule" />
 
       {/* Set as a shape rather than a heading: it bleeds past both edges and
-          sinks out of the page, and the cards below rest on its foot. The
-          facts carry the same information in text, so nothing is lost to a
-          reader who never sees it. */}
+          sinks out of the page, and the summary below rests on its foot. The
+          figures carry the same information in text, so nothing is lost to a
+          reader who never sees it.
+
+          Two changes from the version this restores. The name is spelled the
+          way the airline spells it — it used to read "TGVA THAIAIRWAY", a
+          missing space and a missing S at 240px. And the sink is a mask over
+          solid Royal Orchid rather than a gradient fill on the text itself:
+          same fade, but the colour stays one documented token instead of
+          becoming decoration. */}
       <p className="tgva-band-word" aria-hidden>
-        TGVA THAIAIRWAY
+        TGVA THAI AIRWAYS VIRTUAL
       </p>
 
-      <div className="tgva-facts">
-        {facts.map((fact, i) => (
-          <Reveal key={fact.label} index={i} className="tgva-fact">
-            <FactIcon name={fact.icon} />
-            <div>
-              <b>{fact.label}</b>
-              <small>{fact.detail}</small>
-            </div>
-          </Reveal>
-        ))}
+      <div className="tgva-band-inner">
+
+        {/* A ruled summary rather than four floating cards: the figures are the
+            largest thing in the block and the hairlines do all the dividing,
+            which is how the rest of the site draws structure on white. */}
+        <dl className="tgva-band-table">
+          {facts.map((fact, i) => (
+            /* Reading order is label, figure, detail — "Destinations, 67, in 18
+               countries" — which is also what a `<dl>` requires: every `dt`
+               before its `dd`s. The figure is lifted above the label visually
+               by CSS order alone. */
+            <Reveal key={fact.label} index={i} className="tgva-band-cell">
+              <dt>{fact.label}</dt>
+              <dd className={fact.figure ? "tgva-band-figure" : "tgva-band-figure is-name"}>
+                {fact.value}
+              </dd>
+              <dd className="tgva-band-detail">{fact.detail}</dd>
+            </Reveal>
+          ))}
+        </dl>
       </div>
     </section>
-  );
-}
-
-const PATHS = {
-  pin: (
-    <>
-      <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Z" />
-      <circle cx="12" cy="10" r="2.6" />
-    </>
-  ),
-  tail: <path d="M3 14.5 10.5 12V5.2a1.5 1.5 0 0 1 3 0V12L21 14.5v2L13.5 15v3.4l2.2 1.6v1.4L12 20.4 8.3 21.4V20l2.2-1.6V15L3 16.5Z" />,
-  globe: (
-    <>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M3.5 12h17M12 3.5c2.3 2.4 3.5 5.4 3.5 8.5s-1.2 6.1-3.5 8.5c-2.3-2.4-3.5-5.4-3.5-8.5S9.7 5.9 12 3.5Z" />
-    </>
-  ),
-  device: (
-    <>
-      <rect x="6" y="2.6" width="12" height="18.8" rx="2.4" />
-      <path d="M9.2 13.4 11 12.9l1.6.9 2.5-.9-2.7-2.5 1.1-.4 3.4 1.7" />
-    </>
-  ),
-};
-
-function FactIcon({ name }: { name: keyof typeof PATHS }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden>
-      {PATHS[name]}
-    </svg>
   );
 }

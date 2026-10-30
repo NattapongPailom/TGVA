@@ -1,9 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { scrollToHash } from "@/lib/hash-scroll";
 import { useState, type ComponentProps, type MouseEvent } from "react";
 
-export type ActionVariant = "primary" | "outline" | "light";
+/**
+ * `primary`, `outline` and `light` belong to the orchid grounds, where cream is
+ * the readable colour and gold is the light. `gold` and `line` are their pair
+ * for the white grounds — the closing block is one — where cream on near-white
+ * is invisible and the orchid has to do the work instead.
+ */
+export type ActionVariant = "primary" | "outline" | "light" | "gold" | "line";
 
 /**
  * How much the button asks for. `still` is the default and belongs on most of
@@ -16,6 +23,35 @@ export type ActionMotion = "still" | "roll" | "beacon";
 /** Nose north, turned east below so it reads as leaving the button. */
 const PLANE =
   "M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z";
+
+/**
+ * A link that leaves the site says so before it is clicked, not after. The mark
+ * is drawn rather than a unicode arrow so it carries the same stroke weight as
+ * the rest of the system, and the sentence beside it names the destination for
+ * anyone who cannot see the mark.
+ */
+function departureNote(href: string) {
+  if (href.includes("docs.google.com/forms") || href.includes("forms.gle"))
+    return "opens the membership form on Google Forms in a new tab";
+  return "opens in a new tab";
+}
+
+function DepartureMark() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 12 12"
+      className="ml-2 size-[0.85em] shrink-0 self-center"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="square"
+    >
+      <path d="M3.4 8.6 8.6 3.4" />
+      <path d="M4.6 3.4h4v4" />
+    </svg>
+  );
+}
 
 /** Kept in step with the flight keyframes in globals.css. */
 const LAUNCH_MS = 1200;
@@ -51,6 +87,27 @@ const variants: Record<
     cover: "bg-gold",
     alt: "[--tgva-btn-alt:var(--color-ink)]",
   },
+  /**
+   * Gold on white. It reverses to Royal Orchid rather than to cream: `primary`
+   * drops a cream panel in, which on a near-white ground leaves the pill with
+   * no edge and the label floating.
+   */
+  gold: {
+    shell: "bg-gold text-ink",
+    hover: "hover:bg-brand hover:text-cream",
+    cover: "bg-brand",
+    alt: "[--tgva-btn-alt:var(--color-cream)]",
+  },
+  /**
+   * The outlined button for white grounds. `outline` is drawn in cream for the
+   * orchid grounds and disappears completely here.
+   */
+  line: {
+    shell: "border-[1.5px] border-brand/28 text-brand",
+    hover: "hover:border-brand hover:bg-brand hover:text-cream",
+    cover: "bg-brand",
+    alt: "border-brand [--tgva-btn-alt:var(--color-cream)]",
+  },
 };
 
 /**
@@ -79,6 +136,7 @@ export function ActionLink({
 }: Props) {
   const [launching, setLaunching] = useState(false);
   const opensNewTab = typeof href === "string" && href.startsWith("http");
+  const departure = opensNewTab ? departureNote(href as string) : null;
   const animated = motion !== "still";
   const style = variants[variant];
 
@@ -90,6 +148,13 @@ export function ActionLink({
    */
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     onClick?.(event);
+
+    // Same-page anchors scroll themselves; see lib/hash-scroll.
+    if (typeof href === "string" && href.includes("#") && scrollToHash(href)) {
+      event.preventDefault();
+      return;
+    }
+
     if (!animated || !opensNewTab || launching || event.defaultPrevented) return;
     // Leave the browser's own open-in-new-tab gestures alone.
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
@@ -133,6 +198,7 @@ export function ActionLink({
               {children}
             </span>
           </span>
+          {opensNewTab ? <DepartureMark /> : null}
 
           {launching ? (
             <span aria-hidden className="absolute inset-0 z-1 overflow-hidden">
@@ -147,8 +213,13 @@ export function ActionLink({
           ) : null}
         </>
       ) : (
-        children
+        <>
+          {children}
+          {opensNewTab ? <DepartureMark /> : null}
+        </>
       )}
+
+      {departure ? <span className="sr-only"> — {departure}</span> : null}
     </Link>
   );
 }

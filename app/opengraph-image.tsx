@@ -60,7 +60,7 @@ export default async function OpengraphImage() {
               fontSize: 62,
               fontWeight: 800,
               letterSpacing: "-0.03em",
-              color: "#FFFFFF",
+              color: "#f7f3ee",
               lineHeight: 1.05,
             }}
           >

@@ -12,6 +12,44 @@ const CARD_SHARE = 0.42;
 /** How much scroll the whole move takes, again as a share of the clip. */
 const DISTANCE = 0.6;
 
+/** The card's lift, in whole pixels, for a clip this tall at this scroll. */
+function liftAt(clipHeight: number, scrollY: number) {
+  const climb = clipHeight * COVER * Math.min(1, scrollY / (clipHeight * DISTANCE));
+  // Whole pixels: a fractional offset on a composited layer softens the type
+  // sitting on it.
+  return Math.round(climb * CARD_SHARE);
+}
+
+/**
+ * Where to scroll so `target`, inside the lifting card, lands `margin` below
+ * the top of the viewport — or null when it is not in the card or the card is
+ * not moving.
+ *
+ * The browser's own anchor scroll aims at where the target is when the scroll
+ * starts, but the card keeps climbing as the page travels, so it overshot by
+ * the whole lift: About Us landed 55px above the viewport instead of under the
+ * bar. This aims at where the target will be once the scroll has ended.
+ */
+export function landingInLift(target: HTMLElement, margin: number): number | null {
+  const stage = target.closest<HTMLElement>("[data-hero-lift]");
+  const clip = stage?.querySelector<HTMLElement>("[data-hero-clip]");
+  if (!stage || !clip) return null;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
+
+  const height = clip.offsetHeight;
+  const now = parseFloat(stage.style.getPropertyValue("--tgva-hero-lift")) || 0;
+  // The scroll that would land it with no lift at all.
+  const rest = target.getBoundingClientRect().top + window.scrollY + now - margin;
+
+  // Past the end of the climb the lift is constant; before it, the lift grows
+  // in step with the scroll, so the landing is the one point on that line
+  // where scroll and lift together make up the rest.
+  const full = height * DISTANCE;
+  const top = liftAt(height, full);
+  const y = rest - top >= full ? rest - top : rest / (1 + top / full);
+  return Math.max(0, Math.round(y));
+}
+
 /**
  * The hero's climb, driven by the page's own scroll.
  *
@@ -43,9 +81,7 @@ export function HeroLift({ className, children }: { className?: string; children
       frame = 0;
       const height = clip.offsetHeight;
       const climb = height * COVER * Math.min(1, window.scrollY / (height * DISTANCE));
-      // Whole pixels: a fractional offset on a composited layer softens the
-      // type sitting on it.
-      stage.style.setProperty("--tgva-hero-lift", `${Math.round(climb * CARD_SHARE)}px`);
+      stage.style.setProperty("--tgva-hero-lift", `${liftAt(height, window.scrollY)}px`);
       stage.style.setProperty("--tgva-hero-pan", `${Math.round(climb * (1 - CARD_SHARE))}px`);
     };
 
@@ -64,7 +100,7 @@ export function HeroLift({ className, children }: { className?: string; children
   }, []);
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} className={className} data-hero-lift>
       {children}
     </div>
   );

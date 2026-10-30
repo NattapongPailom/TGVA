@@ -11,7 +11,11 @@ export function DestinationTicker() {
   const duration = destinationTicker.length * SECONDS_PER_DESTINATION;
 
   return (
-    <div aria-hidden className="overflow-hidden bg-brand py-4 text-cream/85">
+    /* brand-deep, not brand: Royal Orchid is the colour of headings, links and
+       hairlines, and the ceremonial ground is the deep. The strip bleeds the
+       full width on purpose — a marquee capped at the container would loop
+       inside a box and stop reading as a departures board. */
+    <div aria-hidden className="overflow-hidden bg-brand-deep py-4 text-cream/85">
       <div
         className="flex w-max gap-14 font-display text-sm font-bold tracking-[0.22em] whitespace-nowrap"
         style={{ animation: `tgva-marquee ${duration}s linear infinite` }}

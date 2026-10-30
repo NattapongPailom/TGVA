@@ -7,6 +7,9 @@ import { aircraftCodes, typeByCode } from "@/content/fleet";
 import { routeDetail } from "@/lib/route-details";
 import { AircraftSilhouette } from "@/components/sections/AircraftSilhouette";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { useFocusTrap } from "@/lib/use-focus-trap";
+import { CloseMark } from "@/components/ui/CloseMark";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 /** Bangkok's own details, the origin of every route in the network. */
 const ORIGIN = { code: "BKK", city: "Bangkok", country: "Thailand" };
@@ -41,18 +44,25 @@ export function RouteDetailDialog({
   destination: Destination;
   onClose: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const planeMotion = useRef<SVGAnimateMotionElement>(null);
+  /** SMIL ignores the stylesheet's reduced-motion block, so it asks directly. */
+  const reducedMotion = usePrefersReducedMotion();
   const detail = routeDetail(destination);
   const codes = aircraftCodes(detail.aircraft);
   const bars = barcode(detail.flightNumber);
+
+  /* Focus starts on the close button and, when the ticket goes, returns to the
+     city row that opened it — so the reader can move straight on to the next
+     city instead of starting again from the top of the page. */
+  useFocusTrap(dialogRef, true, { initialFocus: closeRef });
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKeyDown);
-    closeRef.current?.focus();
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
@@ -68,11 +78,12 @@ export function RouteDetailDialog({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={`Route detail, Bangkok to ${destination.city}`}
       onClick={onClose}
-      className="fixed inset-0 z-90 grid place-items-center overflow-y-auto bg-ink/60 p-6 backdrop-blur-[5px]"
+      className="fixed inset-0 z-90 grid place-items-center overflow-y-auto bg-ink/60 p-[max(1.5rem,env(safe-area-inset-left))] backdrop-blur-[5px]"
     >
       <div
         onClick={(event) => event.stopPropagation()}
@@ -99,7 +110,7 @@ export function RouteDetailDialog({
             aria-label="Close"
             className="tgva-ticket-close"
           >
-            ✕
+            <CloseMark />
           </button>
 
           <div className="tgva-ticket-top">
@@ -144,7 +155,7 @@ export function RouteDetailDialog({
                   <path d={PLANE} transform="rotate(90) scale(1.5) translate(-12,-12)" />
                   <animateMotion
                     ref={planeMotion}
-                    dur="3.2s"
+                    dur={reducedMotion ? "0.01s" : "3.2s"}
                     begin="indefinite"
                     fill="freeze"
                     rotate="auto"
@@ -188,9 +199,9 @@ export function RouteDetailDialog({
             {codes.map((code) => {
               const spec = typeByCode(code);
 
-              /* Every code in the timetable is a type in the fleet. Should one
-                 arrive that is not, it is named as written rather than guessed
-                 at — and it means the two lists have drifted apart. */
+              /* Every code in the timetable resolves — active, retired or
+                 legacy. Should one arrive that does not, it is named as written
+                 rather than guessed at, and that means a typo. */
               if (!spec) {
                 return (
                   <div key={code} className="tgva-ticket-plane">
@@ -207,6 +218,10 @@ export function RouteDetailDialog({
                   <div>
                     <span className="tgva-ticket-plane-name">{spec.name}</span>
                     <span className="tgva-ticket-plane-code">{code}</span>
+                    {/* A fact about the fleet, not a fault with the route — so
+                        it is set as a quiet label beside the code, in the ink
+                        the rest of the ticket's secondary text uses. */}
+                    {spec.retired ? <span className="tgva-ticket-plane-retired">Retired</span> : null}
                   </div>
                   <AircraftSilhouette
                     length={spec.length}

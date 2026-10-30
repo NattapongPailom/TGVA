@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { events } from "@/content/events";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { CloseMark } from "@/components/ui/CloseMark";
 
 /** Long enough for the page to arrive before anything covers it. */
 const ENTRANCE_MS = 900;
@@ -167,7 +168,9 @@ export function EventAnnouncement() {
             aria-label="Close"
             className="tgva-pass-close"
           >
-            ✕
+            {/* The shared mark, not a text ✕: this was the last of the three
+                different dismiss affordances the page had. */}
+            <CloseMark className="size-3.5" />
           </button>
 
           <a

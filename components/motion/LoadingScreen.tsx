@@ -3,13 +3,24 @@
 import { useEffect, useState } from "react";
 import { LOADER_ICONS, LoaderDefs } from "@/components/motion/LoaderIcons";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { useIntro } from "@/lib/intro";
 
 /** One flip plus its rest. Must match the duration of `tgva-loader-flip`. */
 const CYCLE_MS = 1400;
 /** Long enough that a fast connection doesn't flash the overlay and vanish. */
 const MIN_VISIBLE_MS = 300;
-/** Never trap the visitor if an asset stalls. */
-const TIMEOUT_MS = 8000;
+/**
+ * Never trap the visitor if an asset stalls.
+ *
+ * This is deliberately tied to the scrim's JavaScript-free expiry in
+ * globals.css — `tgva-loader-expire`, which starts at 4s. The two used to be
+ * set independently, at 4s and 8s, and the gap between them was real: from 4.4s
+ * the scrim was invisible while `gone` was still false, so the page looked
+ * ready and `useScrollLock` was still holding it. Firing here at 4s makes the
+ * JavaScript path finish first and leaves the CSS as the genuine no-JS
+ * fallback. Move one and move the other.
+ */
+const TIMEOUT_MS = 4000;
 /** Matches the fade-out duration in the class list below. */
 const FADE_MS = 250;
 
@@ -25,8 +36,13 @@ const ICON_CYCLE_MS = CYCLE_MS * LOADER_ICONS.length;
 export function LoadingScreen() {
   const [leaving, setLeaving] = useState(false);
   const [gone, setGone] = useState(false);
+  const { claim, finish: released } = useIntro();
 
   useEffect(() => {
+    // Said on mount, before the provider's own effect runs, so the page knows
+    // something is covering it rather than resolving as if nothing were.
+    claim();
+
     const startedAt = Date.now();
     const timers: ReturnType<typeof setTimeout>[] = [];
 
@@ -35,7 +51,14 @@ export function LoadingScreen() {
       // Unmount on a timer rather than on transitionend: that event never fires
       // if the tab is backgrounded or motion is reduced, which would leave the
       // overlay covering the page forever.
-      timers.push(setTimeout(() => setGone(true), FADE_MS + 80));
+      timers.push(
+        setTimeout(() => {
+          setGone(true);
+          // Only now is the page actually uncovered: the scrim is unmounted and
+          // the scroll lock released in the same commit.
+          released();
+        }, FADE_MS + 80),
+      );
     };
 
     const settle = () =>
@@ -51,7 +74,7 @@ export function LoadingScreen() {
       clearTimeout(failsafe);
       window.removeEventListener("load", settle);
     };
-  }, []);
+  }, [claim, released]);
 
   useScrollLock(!gone);
 

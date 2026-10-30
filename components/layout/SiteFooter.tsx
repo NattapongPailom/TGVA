@@ -11,15 +11,23 @@ import { SocialIcon } from "@/components/ui/SocialIcon";
  * Only from `md`, where Join Us is reliably the taller of the two — below that
  * this could peek out from under it, so it stays an ordinary block.
  *
+ * And only beneath Join Us. The stick is a pairing with that statement, so a
+ * page without it passes `sticky={false}` and gets a footer in normal flow —
+ * on /events a stuck footer sat over the short page's own copy.
+ *
  * Each column is a real `<details>`, so the headings expand and collapse on
  * click with no script: the browser owns the state, keyboard and screen-reader
  * behaviour come for free, and a page with JavaScript off still opens them.
  */
-export function SiteFooter() {
+export function SiteFooter({ sticky = true }: { sticky?: boolean }) {
   return (
-    <footer className="relative z-0 bg-brand-abyss px-12 pt-16 pb-10 text-cream md:sticky md:bottom-0">
+    <footer
+      className={`tgva-gutter relative z-0 bg-brand-abyss pt-16 pb-[max(2.5rem,env(safe-area-inset-bottom))] text-cream${sticky ? " md:sticky md:bottom-0" : ""}`}
+    >
       <div className="mx-auto max-w-[1240px]">
-        <div className="grid gap-x-12 sm:grid-cols-2 md:grid-cols-3">
+        {/* Intrinsic, not breakpoint-keyed: a fourth column has to be possible
+            by adding it to the content file, not by editing a media query. */}
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-x-12">
           {footerColumns.map((column) => (
             <details key={column.title} className="tgva-fold" open>
               <summary>
@@ -81,7 +89,10 @@ export function SiteFooter() {
           )}
         </div>
 
-        <div className="mt-12 flex flex-wrap items-baseline justify-between gap-x-10 gap-y-3 border-t border-cream/12 pt-7 text-[14px] leading-relaxed text-cream/45">
+        {/* The non-affiliation notice is a standing commitment, not fine print.
+            It was the dimmest required text on the site at 4.12:1; this is
+            8.81:1 and still quieter than everything above it. */}
+        <div className="mt-12 flex flex-wrap items-baseline justify-between gap-x-10 gap-y-3 border-t border-cream/12 pt-7 text-[14px] leading-relaxed text-cream/70">
           <p className="max-w-[62ch] text-pretty">{footerNote}</p>
           <p>© {new Date().getFullYear()} Thai Airways Virtual</p>
         </div>

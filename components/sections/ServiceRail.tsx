@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { CloseMark } from "@/components/ui/CloseMark";
 
 export type Service = {
   title: string;
@@ -38,6 +39,8 @@ export function ServiceRail({
 }) {
   const railRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDialogElement>(null);
+  const prevRef = useRef<HTMLButtonElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
   const [at, setAt] = useState(0);
   const [ends, setEnds] = useState({ start: true, end: false });
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -59,10 +62,17 @@ export function ServiceRail({
     if (!rail) return;
     const width = step();
     setAt(width ? Math.min(items.length - 1, Math.max(0, Math.round(rail.scrollLeft / width))) : 0);
-    setEnds({
+    const next = {
       start: rail.scrollLeft <= 2,
       end: rail.scrollLeft >= rail.scrollWidth - rail.clientWidth - 2,
-    });
+    };
+    // A button that disables while it holds focus drops it to <body>, so the
+    // keyboard reader pressing NEXT to the last card loses their place. Focus
+    // crosses to the other button first, while this one can still give it up.
+    const held = document.activeElement;
+    if (next.end && held === nextRef.current && !next.start) prevRef.current?.focus();
+    if (next.start && held === prevRef.current && !next.end) nextRef.current?.focus();
+    setEnds(next);
   }, [items.length, step]);
 
   useEffect(() => {
@@ -100,13 +110,16 @@ export function ServiceRail({
         </button>
       </div>
 
-      {/* One line, at the full measure. `text-balance` is what used to break it
-          into three: balancing a single line has nothing to balance. */}
-      <p className="mt-7 font-display text-[clamp(1.25rem,2.6vw,2rem)] font-extrabold leading-[1.12] tracking-[-0.03em] text-nowrap text-brand max-[46rem]:text-balance">
+      {/* Balanced at every width. It used to be held to one line above 46rem,
+          but across the tablet and small-laptop widths the column is narrower
+          than the line — at 820px it ran 433px into a 414px column. Balanced,
+          it stays on one line wherever that line fits and breaks evenly where
+          it does not. */}
+      <p className="mt-7 font-display text-[clamp(1.25rem,2.6vw,2rem)] font-extrabold leading-[1.12] tracking-[-0.03em] text-brand text-balance">
         {lead}
       </p>
 
-      <p className="mt-4 text-[16px] leading-relaxed text-ink-soft text-pretty">{intro}</p>
+      <p className="mt-4 text-[17px] leading-[1.75] text-ink-soft text-pretty">{intro}</p>
 
       <div
         ref={railRef}
@@ -124,9 +137,13 @@ export function ServiceRail({
           <article className="tgva-slide is-photo">
             <Image
               src="/images/fleet-apron.jpg"
-              alt="A Thai Airways Virtual aircraft tail carrying the orchid mark, against a clear sky."
+              alt="Two widebody tails close together in Infinite Flight: a dark Star Alliance fin in front, a Thai Airways orchid fin behind it."
               fill
               sizes="(max-width: 62rem) 86vw, 640px"
+              /* Large enough to be the page's LCP on some screens, so it is
+                 not left to lazy loading. `priority` is deprecated in this
+                 Next; the docs prefer `loading="eager"` to `preload`. */
+              loading="eager"
               className="tgva-slide-photo"
             />
             <div className="tgva-slide-copy">
@@ -156,14 +173,14 @@ export function ServiceRail({
       </div>
 
       <div className="tgva-transport">
-        <button type="button" onClick={() => go(-1)} disabled={ends.start}>
+        <button ref={prevRef} type="button" onClick={() => go(-1)} disabled={ends.start}>
           <Chevron direction="left" />
           PREV
         </button>
         <p aria-live="polite">
           {pad(at + 1)} / {pad(items.length)}
         </p>
-        <button type="button" onClick={() => go(1)} disabled={ends.end}>
+        <button ref={nextRef} type="button" onClick={() => go(1)} disabled={ends.end}>
           NEXT
           <Chevron direction="right" />
         </button>
@@ -183,7 +200,7 @@ export function ServiceRail({
         <div className="tgva-allsheet-head">
           <h5 id="tgva-allsheet-title">Everything we do</h5>
           <button type="button" onClick={closeSheet} aria-label="Close">
-            <CloseIcon />
+            <CloseMark className="size-[17px]" />
           </button>
         </div>
         <div className="tgva-allsheet-body">
@@ -243,11 +260,5 @@ const GridIcon = () => (
     <rect x="13.5" y="3.5" width="7" height="7" rx="1.4" />
     <rect x="3.5" y="13.5" width="7" height="7" rx="1.4" />
     <rect x="13.5" y="13.5" width="7" height="7" rx="1.4" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden>
-    <path d="M6 6l12 12M18 6 6 18" />
   </svg>
 );

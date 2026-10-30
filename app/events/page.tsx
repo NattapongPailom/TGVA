@@ -21,7 +21,7 @@ export default function EventsPage() {
     <>
       <SiteHeader />
 
-      <main className="min-h-[62svh] bg-white px-12 pt-16 pb-24">
+      <main id="main" className="tgva-gutter min-h-[62svh] bg-white pt-16 pb-24">
         <div className="mx-auto max-w-[1240px]">
           <p className="font-display text-xs font-bold tracking-[0.26em] text-brand-light">
             THE CALENDAR
@@ -35,7 +35,7 @@ export default function EventsPage() {
               {events.map((event) => (
                 <li
                   key={event.id}
-                  className="overflow-hidden rounded-[18px] border border-brand/12 bg-white shadow-[0_18px_40px_rgba(30,6,64,0.08)]"
+                  className="overflow-hidden rounded-[14px] border border-brand/12 bg-white shadow-[0_18px_40px_rgba(30,6,64,0.08)]"
                 >
                   <div className="relative aspect-4/3 bg-brand-deep">
                     <Image
@@ -55,7 +55,7 @@ export default function EventsPage() {
                     <h2 className="font-display text-[22px] font-extrabold tracking-[-0.015em] text-brand">
                       {event.title}
                     </h2>
-                    <p className="text-[15.5px] leading-relaxed text-ink-mute text-pretty">
+                    <p className="text-[17px] leading-[1.75] text-ink-mute text-pretty">
                       {event.blurb}
                     </p>
                     <p className="mt-1 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[12px] text-ink-soft">
@@ -86,7 +86,8 @@ export default function EventsPage() {
         </div>
       </main>
 
-      <SiteFooter />
+      {/* No Join Us above it here, so nothing for the footer to stick behind. */}
+      <SiteFooter sticky={false} />
     </>
   );
 }

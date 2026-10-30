@@ -14,6 +14,8 @@ import { nav, social, membershipFormUrl } from "@/content/site";
 import { events } from "@/content/events";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { useScrollLock } from "@/lib/use-scroll-lock";
+import { useFocusTrap } from "@/lib/use-focus-trap";
+import { scrollToHash } from "@/lib/hash-scroll";
 
 /** Above the hero the bar always shows; hiding it there would serve nothing. */
 const REVEAL_ZONE = 180;
@@ -45,6 +47,7 @@ export function SiteHeader() {
   const [marker, setMarker] = useState<{ x: number; width: number } | null>(null);
 
   const headerRef = useRef<HTMLElement>(null);
+  const burgerRef = useRef<HTMLButtonElement>(null);
   const linksRef = useRef<HTMLElement>(null);
   const linkRefs = useRef(new Map<string, HTMLElement>());
   const closeTimer = useRef(0);
@@ -52,6 +55,13 @@ export function SiteHeader() {
   const activeKey = active ? (KEY_OF.get(active) ?? null) : null;
 
   useScrollLock(sheetOpen);
+
+  /* The open sheet is modal: Tab cycles through the bar and the sheet — the
+     burger stays in reach, so it can be closed the way it was opened — and
+     never walks out into the page under the scrim. Every way of closing it
+     (the burger, Escape, the scrim, a link) hands focus back to the burger;
+     a tap on the scrim otherwise left it on <body>. */
+  useFocusTrap(headerRef, sheetOpen, { returnTo: burgerRef });
 
   /* The gold marker is measured rather than laid out: the links are a plain
      row, and the bar under them slides between their boxes. */
@@ -120,6 +130,10 @@ export function SiteHeader() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      // A dropdown closed with focus inside it would hide the item holding
+      // focus, and focus would drop to <body>. It goes back to the trigger.
+      const group = (document.activeElement as Element | null)?.closest(".tgva-nav-group");
+      group?.querySelector<HTMLButtonElement>(":scope > button")?.focus();
       setOpenMenu(null);
       setSheetOpen(false);
     };
@@ -156,17 +170,23 @@ export function SiteHeader() {
         {/* Same 1240px measure as every section below, so the logo lines up
             with page content. */}
         <div className="tgva-nav-bar">
-          {/* Both marks ship: the cream one reads on the orchid ground the bar
+          {/* Both marks ship: the gold one reads on the orchid ground the bar
               rests on, the purple one on the white it turns once the page
               scrolls. Only one is ever visible, and the alt text sits on that
-              one so the pair is announced once. */}
+              one so the pair is announced once.
+
+              The gold mark is the supplied artwork with its purple field keyed
+              out. The field was Royal Orchid, not the Orchid Deep this bar sits
+              on, so left in it read as a lighter rectangle; removing it also
+              lets the bar show through the orchid's loops, which is how the
+              mark is drawn to work. */}
           <Link href="/#top" className="tgva-nav-logo" aria-label="TGVA — Thai Airways Virtual">
             <Image
               className="tgva-logo-light"
-              src="/images/logo-tgva-cream.png"
+              src="/images/logo-tgva-gold.png"
               alt=""
-              width={866}
-              height={288}
+              width={1179}
+              height={339}
               priority
             />
             <Image
@@ -218,12 +238,18 @@ export function SiteHeader() {
                     <Chevron />
                   </button>
 
-                  <div className="tgva-nav-menu">
+                  {/* Inert while closed. The stylesheet holds `visibility`
+                      until the 350ms fade has run, so without this a Tab in
+                      that window landed on an item that was disappearing. */}
+                  <div className="tgva-nav-menu" inert={openMenu !== item.key}>
                     {item.children.map((child) => (
                       <Link
                         key={child.href}
                         href={child.href}
-                        onClick={() => setOpenMenu(null)}
+                        onClick={(event) => {
+                          setOpenMenu(null);
+                          if (scrollToHash(child.href)) event.preventDefault();
+                        }}
                         className={`tgva-nav-menu-item ${
                           active === child.section ? "is-active" : ""
                         }`}
@@ -243,6 +269,9 @@ export function SiteHeader() {
                     if (element) linkRefs.current.set(item.key, element);
                   }}
                   aria-current={activeKey === item.key ? "true" : undefined}
+                  onClick={(event) => {
+                    if (scrollToHash(item.href!)) event.preventDefault();
+                  }}
                   className={`tgva-nav-link ${activeKey === item.key ? "is-active" : ""}`}
                 >
                   {item.label}
@@ -289,6 +318,7 @@ export function SiteHeader() {
           </Link>
 
           <button
+            ref={burgerRef}
             type="button"
             className="tgva-nav-burger"
             aria-expanded={sheetOpen}
@@ -317,7 +347,10 @@ export function SiteHeader() {
                       <Link
                         key={child.href}
                         href={child.href}
-                        onClick={() => setSheetOpen(false)}
+                        onClick={(event) => {
+                          setSheetOpen(false);
+                          if (scrollToHash(child.href)) event.preventDefault();
+                        }}
                         className={`tgva-nav-sheet-link is-sub ${
                           active === child.section ? "is-active" : ""
                         }`}
@@ -329,7 +362,10 @@ export function SiteHeader() {
                 ) : (
                   <Link
                     href={item.href!}
-                    onClick={() => setSheetOpen(false)}
+                    onClick={(event) => {
+                      setSheetOpen(false);
+                      if (scrollToHash(item.href!)) event.preventDefault();
+                    }}
                     className={`tgva-nav-sheet-link ${activeKey === item.key ? "is-active" : ""}`}
                   >
                     {item.label}

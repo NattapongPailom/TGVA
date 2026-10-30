@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo, IBM_Plex_Mono, Sarabun } from "next/font/google";
 import { siteUrl } from "@/lib/site-config";
 import "./globals.css";
+import { IntroProvider } from "@/lib/intro";
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -54,7 +55,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-scroll-behavior="smooth"
       className={`${archivo.variable} ${sarabun.variable} ${plexMono.variable} antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        {/* Eleven focus stops sit in the header before the page itself begins.
+            This is the first stop on every page, and the only one that is
+            invisible until it is reached. */}
+        <a href="#main" className="tgva-skip">
+          Skip to main content
+        </a>
+        {/* Carries the "nothing is covering the page any more" signal from the
+            loading screen to anything waiting to animate in behind it. Safe on
+            routes with no loader: see lib/intro.tsx. */}
+        <IntroProvider>{children}</IntroProvider>
+      </body>
     </html>
   );
 }

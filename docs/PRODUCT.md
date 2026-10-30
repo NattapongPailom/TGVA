@@ -57,13 +57,14 @@ Real, usable:
 - Full fleet list, 14+ types across Airbus, Boeing and McDonnell Douglas (`content/fleet.ts`).
 - The team's own About, Story, Vision, Mission and services copy (`content/site.ts`), transcribed from their document.
 - Live membership form URL.
+- Discord invite: https://discord.gg/VuCfHXG3F — guild "Thai Airways Virtual.", supplied by the team on 2 Oct 2026. **The invite given was a temporary one, set to expire 27 Oct 2026.** If it has not been replaced with a non-expiring invite, this link is dead and the site is doing the one thing the principles below forbid.
 - Instagram channel: https://www.instagram.com/if.tgva/
 - Source media: `_source-media/masters/` (who-we-are, promote video masters) and `_source-media/reference-screenshots/`, including a logo file.
 
 Absent — never fabricate:
 - **Staff names and photos.** Only CEO (Tjb0709) and COO (IFTH-Prichachan) are named. Chief Pilot, HR Director and CMO are vacant. No team photographs exist. Do not invent names and do not fill the slots with stock portraits.
 - **Events.** `content/events.ts` is empty. No event has been announced. The empty state is the truthful state; do not write a sample line-up into the page.
-- **Discord URL.** The main community channel has no link yet. It renders as no link rather than a dead one until the team supplies it.
+
 - No member counts, flight-hour totals, testimonials, awards, press or partner names have been supplied.
 
 The services copy in `content/site.ts` is the team's current wording and is treated as real copy, not a gap.

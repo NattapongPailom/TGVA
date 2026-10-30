@@ -26,7 +26,7 @@ export const nav: NavItem[] = [
   {
     key: "inside",
     label: "Inside TGVA",
-    sections: ["what", "vision", "team"],
+    sections: ["what", "vision"],
     children: [
       {
         label: "What We Do",
@@ -40,12 +40,6 @@ export const nav: NavItem[] = [
         section: "vision",
         note: "What we fly for, and the promises behind it",
       },
-      {
-        label: "Meet the Staff",
-        href: "/#team",
-        section: "team",
-        note: "The people who keep the airline running",
-      },
     ],
   },
   { key: "where", label: "Where We Fly", href: "/#wherewefly", sections: ["wherewefly"] },
@@ -57,7 +51,7 @@ export const nav: NavItem[] = [
  * left out rather than linked nowhere — fill in the href and it appears.
  */
 export const social = [
-  { icon: "discord" as const, label: "Discord", href: "" },
+  { icon: "discord" as const, label: "Discord", href: "https://discord.gg/cV84VuPEc9" },
   { icon: "instagram" as const, label: "Instagram", href: "https://www.instagram.com/if.tgva/" },
 ];
 
@@ -68,7 +62,14 @@ export const social = [
  */
 export const about = {
   eyebrow: "WELCOME TO THAI AIRWAYS VIRTUAL",
-  heading: "About Us",
+  /**
+   * The page's h1. "About Us" was a navigation label standing in for one, which
+   * told a first-time reader nothing at the one moment they are deciding whether
+   * to stay. This is assembled only from the team's own second paragraph below —
+   * their motto, and where they say they are carrying it — so it claims nothing
+   * new. The eyebrow above it carries the airline's name.
+   */
+  h1: "Smooth as Silk, in the virtual skies.",
   paragraphs: [
     "Thai Airways Virtual (TGVA) is a virtual airline and aviation community created for people who share a passion for flying, aviation, and the Infinite Flight experience.",
     "Inspired by the identity and hospitality of Thailand, TGVA brings the spirit of \u201cSmooth as Silk\u201d into the virtual skies. We aim to provide an enjoyable, professional, and welcoming environment where pilots can fly, connect, and grow together.",
@@ -101,7 +102,10 @@ export const story = {
 };
 
 /**
- * The team, as the document lists them. A post with no name against it yet is
+ * The team, as the document lists them. No surface renders this today — the
+ * Meet the Staff section was removed from the page — but it is the team's own
+ * transcribed copy, so it stays here rather than being deleted with the
+ * section that used to show it. A post with no name against it yet is
  * shown as open rather than left off — the structure is the airline's, and the
  * names arrive as they are appointed.
  */
@@ -242,7 +246,6 @@ export const footerColumns = [
     title: "Community",
     links: [
       { href: "/#story", label: "Our Story" },
-      { href: "/#team", label: "Meet the Staff" },
       { href: "/#vision", label: "Vision & Mission" },
       { href: "/events", label: "Events" },
     ],
@@ -266,8 +269,18 @@ export const join = {
   eyebrow: "THIS IS TGVA",
   heading: "This is where your journey begins.",
   body: "Fly the Smooth as Silk. Fly with TGVA.",
+  /**
+   * Three facts, each already established elsewhere in PRODUCT.md: TGVA is a
+   * non-profit, flying happens in Infinite Flight, and the hub is Bangkok
+   * Suvarnabhumi. Nothing here is new about the airline — it is the first place
+   * on the page all three are said in one line, at the moment the reader is
+   * deciding.
+   */
+  caption:
+    "A non-profit virtual airline flown in Infinite Flight, from a home base at Bangkok Suvarnabhumi.",
   actions: [
-    { href: membershipFormUrl, label: "BECOME A MEMBER", variant: "primary" as const },
-    { href: "#wherewefly", label: "EXPLORE THE NETWORK", variant: "outline" as const },
+    /* The white-ground pair: this block is the one light ground on the page. */
+    { href: membershipFormUrl, label: "BECOME A MEMBER", variant: "gold" as const },
+    { href: "#wherewefly", label: "EXPLORE THE NETWORK", variant: "line" as const },
   ],
 };

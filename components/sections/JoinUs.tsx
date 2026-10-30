@@ -1,119 +1,80 @@
-import Image from "next/image";
-import Link from "next/link";
 import { join } from "@/content/site";
 import { regions } from "@/content/regions";
+import { fleet } from "@/content/fleet";
 import { ActionLink } from "@/components/ui/ActionLink";
-import { OrchidMark } from "@/components/motion/OrchidMark";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal } from "@/components/motion/Reveal";
+import { ApproachStage, type Figure } from "@/components/sections/ApproachStage";
 
-const destinationCount = regions.reduce(
-  (total, region) => total + region.destinations.length,
-  0,
-);
+/** Counted, never typed: adding a destination or a type moves the figure with it. */
+const destinations = regions.flatMap((region) => region.destinations);
+const countries = new Set(destinations.map((destination) => destination.country)).size;
 
 /**
- * The page's closing statement, and the last thing between a reader and the
- * membership form.
+ * The two rows sit at 56% and 76% of the picture's height, where the silhouette
+ * has narrowed to leave at least 22% clear on each side. Any higher and the
+ * wings are in the way: at the wing line the span reaches both edges.
+ */
+const figures: Figure[] = [
+  { value: String(destinations.length), label: "Destinations", side: "l" },
+  { value: String(countries), label: "Countries", side: "r" },
+  { value: String(fleet.length), label: "Aircraft types", side: "l", low: true },
+  { value: "1", label: "Home base", side: "r", low: true },
+];
+
+/**
+ * The closing statement, and the last thing between a reader and the membership
+ * form. "The Approach".
  *
- * Two halves: the invitation set as large as the page will carry it, and the
- * aircraft beside it. The two small panels under the buttons and the card on
- * the photograph are the only detail in the block — no rules, no marks, nothing
- * geometric. At this point in the page the words and the aeroplane are enough.
+ * The aircraft is a true cut-out, so it belongs to the page rather than to a
+ * panel, and it fills the page container outright. A gold hairline runs at wing
+ * height — a horizon for it to stand on, with its end ticks falling exactly on
+ * the wingtips — and the figures sit below in the clear air either side of the
+ * gear, mirrored, because a nose-on aircraft is symmetrical and the block can
+ * be too.
+ *
+ * Three numbers measured off public/images/approach-aircraft.png govern the
+ * layout, so a replacement aircraft means re-measuring rather than re-judging:
+ * the wing line at 43.3% of the picture's height, the fin band in the top 19%
+ * where the shape is a hairline, and the gear meeting the ground at 92%.
  *
  * It fills the viewport on purpose: arriving here should show this and nothing
  * else, which is also what keeps the detail footer hidden behind it — see the
- * stack in app/page.tsx.
+ * stack in app/page.tsx. That stack is why this block stays opaque.
  */
 export function JoinUs() {
   return (
-    <section
-      id="join"
-      className="relative z-1 flex min-h-svh flex-col justify-center bg-brand-deep px-12 py-16 text-cream"
-    >
-      <div className="mx-auto grid w-full max-w-[1240px] items-center gap-x-16 gap-y-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-        <div>
-          <Reveal>
-            <p className="font-display text-xs font-bold tracking-[0.3em] text-gold">
-              {join.eyebrow}
-            </p>
-            {/* Uppercase and set tight: at this scale the sentence is the
-                block's whole composition, so it is allowed to be the largest
-                type on the site. */}
-            <h2 className="mt-7 font-display text-[clamp(2.5rem,5.6vw,4.75rem)] font-extrabold leading-[0.92] tracking-[-0.04em] uppercase text-balance">
-              {join.heading}
-            </h2>
-          </Reveal>
+    <section id="join" className="tgva-approach relative z-1 flex min-h-svh flex-col justify-center">
+      <div className="tgva-approach-inner">
+        <Reveal>
+          <Eyebrow tone="gold-deep">{join.eyebrow}</Eyebrow>
+        </Reveal>
 
+        <div className="tgva-approach-scene">
           <Reveal index={1}>
-            <p className="mt-7 max-w-[46ch] text-[18px] leading-relaxed text-cream/75 text-pretty">
-              {join.body}
-            </p>
-
-            <div className="mt-9 flex flex-wrap gap-3.5">
-              {join.actions.map((action, i) => (
-                <ActionLink
-                  key={action.href}
-                  href={action.href}
-                  variant={action.variant}
-                  motion={i === 0 ? "roll" : "still"}
-                >
-                  {action.label}
-                </ActionLink>
-              ))}
-            </div>
+            <h2 className="tgva-approach-head">{join.heading}</h2>
           </Reveal>
 
-          {/* Two facts a prospective pilot actually asks: where it flies from,
-              and what they need to fly it in. */}
-          <Reveal index={2} className="mt-10 grid gap-3 sm:grid-cols-2 sm:max-w-[34rem]">
-            <Panel label="HUB" value="Bangkok Suvarnabhumi (BKK)" />
-            <Panel label="FLOWN IN" value="Infinite Flight" />
-          </Reveal>
+          <ApproachStage figures={figures} />
         </div>
 
-        <Reveal index={1} className="tgva-join-frame">
-          <Image
-            src="/images/who-we-are-poster.jpg"
-            alt="A Thai Airways Virtual A350 climbing away from the coast."
-            fill
-            sizes="(max-width: 64rem) 92vw, 540px"
-            className="tgva-join-photo"
-          />
+        <Reveal index={2}>
+          <p className="tgva-approach-caption">{join.caption}</p>
 
-          {/* The mark, set into the corner of the frame rather than drawn on
-              top of it. */}
-          <span className="tgva-join-mark" aria-hidden>
-            <OrchidMark className="size-7" />
-          </span>
-
-          <Link href="#wherewefly" className="tgva-join-jump">
-            <span>
-              <b>Where we fly</b>
-              <small>{destinationCount} destinations</small>
-            </span>
-            <svg viewBox="0 0 24 24" aria-hidden>
-              <path d="M4 12h15M13 6l6 6-6 6" />
-            </svg>
-          </Link>
+          <div className="tgva-approach-cta">
+            {join.actions.map((action, i) => (
+              <ActionLink
+                key={action.href}
+                href={action.href}
+                variant={action.variant}
+                motion={i === 0 ? "roll" : "still"}
+              >
+                {action.label}
+              </ActionLink>
+            ))}
+          </div>
         </Reveal>
       </div>
-
-      <Reveal index={3} className="mx-auto mt-14 w-full max-w-[1240px]">
-        <p className="font-display text-[11px] font-bold tracking-[0.24em] text-cream/40">
-          THAI AIRWAYS VIRTUAL
-        </p>
-      </Reveal>
     </section>
-  );
-}
-
-function Panel({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="tgva-join-panel">
-      <p className="font-display text-[10px] font-bold tracking-[0.24em] text-gold">{label}</p>
-      <p className="mt-2.5 font-display text-[17px] font-bold tracking-[-0.01em] text-cream">
-        {value}
-      </p>
-    </div>
   );
 }

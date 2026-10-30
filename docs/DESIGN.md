@@ -8,7 +8,7 @@ colors:
   brand-abyss: "#0e0326"
   route: "#301661"
   gold: "#d8a657"
-  gold-deep: "#b8801f"
+  gold-deep: "#8f6213"
   cream: "#f7f3ee"
   ink: "#150e22"
   ink-soft: "#3e3a4e"
@@ -141,6 +141,7 @@ Motion is mechanical, not decorative. A button's label rolls up while a panel dr
 
 **Key Characteristics:**
 - Two grounds, alternating: white for reading, deep orchid for arrival.
+- The fleet stage closes the page body, and it is there for the rhythm as much as the argument: it is the one Orchid Deep block in the second half, and it is what stops four light blocks running straight into the abyss footer. The last three blocks alternate hard — deep, light, abyss.
 - Gold is light, never decoration — it marks the one thing that matters on a screen.
 - Hairlines (1px at 15–16% brand) do the dividing work that boxes would do elsewhere.
 - Display type is set enormous, tight and negative-tracked; labels are tiny and widely letterspaced. There is nothing in between by accident.
@@ -154,13 +155,13 @@ Two brand colours and one long neutral ramp. Orchid purple carries every structu
 ### Primary
 - **Royal Orchid** (`#360a6f`): Thai Airways' own orchid purple. Section headings, nav links, active states, and every hairline (used at 10–20% opacity for borders and rules). The identity colour.
 - **Orchid Light** (`#5b2ba8`): eyebrows, small headings inside white blocks, and the secondary diamond in the rule. The readable purple where full brand would over-weight small type.
-- **Orchid Deep** (`#1e0640`): the ceremonial ground. Hero wrapper, Join Us, fleet stage, ticket stub gradient terminus. Whole-viewport surfaces, not accents.
+- **Orchid Deep** (`#1e0640`): the ceremonial ground. Hero wrapper, fleet stage, ticket stub gradient terminus, destination strip. Whole-viewport surfaces, not accents.
 - **Orchid Abyss** (`#0e0326`): the deepest step, for shadow tinting and the darkest layered ground.
 - **Route Orchid** (`#301661`): the Route Detail stub only. Deliberately lighter than Royal Orchid because the stub sits against white, where the darker brand reads nearly black.
 
 ### Secondary
 - **Cabin Gold** (`#d8a657`): light. The focus ring, the nav marker, the primary button's rest state, the beacon pulse, the diamond in the divider, the aircraft in flight. Never a background for body text.
-- **Cabin Gold Deep** (`#b8801f`): gold on white, where `#d8a657` loses contrast. Nav link hover is its only routine use.
+- **Cabin Gold Deep** (`#8f6213`): gold on white, where `#d8a657` loses contrast. 5.35:1 on white and 4.64:1 on Surface Sunken, so it clears AA at label size — which the previous `#b8801f` did not (3.42:1 and 2.96:1). It carries nav link hover, every emphasised word in the services index, the staff role labels and the mission label; reserve `#b8801f` for 18px and up.
 
 ### Neutral
 - **Cream** (`#f7f3ee`): all type on orchid grounds. Warmer than white on purpose — white on deep purple reads clinical.
@@ -176,7 +177,7 @@ Two brand colours and one long neutral ramp. Orchid purple carries every structu
 
 **The Hairline Rule.** Structure on white is drawn with 1px lines at `brand/15` (`rgba(54,10,111,0.15)`), not with boxes, fills, or shadows. A list separated by hairlines is correct; the same list in bordered cards is not this system.
 
-**The Two Grounds Rule.** Every block is either white or an orchid deep. There is no third ground and no gradient wash between them. A section that cannot decide which it is has not been designed yet.
+**The Two Grounds Rule.** Every block is either white (`--color-white`, a named token — not a literal `#fff` in a component) or an orchid deep. There is no third ground and no gradient wash between them. A section that cannot decide which it is has not been designed yet. Royal Orchid is *not* a ground: it is the colour of headings, links and hairlines, so the destination strip takes Orchid Deep like every other dark block.
 
 ## Typography
 
@@ -198,23 +199,29 @@ Two brand colours and one long neutral ramp. Orchid purple carries every structu
 
 **The No Middle Rule.** Type is either very large (display/headline) or very small and letterspaced (label). The 22px title is the only step between them. Reaching for 28px or 32px body-ish headings means the hierarchy has slipped.
 
+A fluid step may *floor* on a lower documented step when the copy is long. The Headline clamp bottoms out at 2.375rem, which is right for a heading of two or three words and wrong for a sentence: the vision statement is 145 characters, and at that floor it ran to ten lines and 46% of a 390px viewport. It floors on 22px — the Title step — so it lands on the ramp instead of inventing a size between the two, and its leading opens as the type comes down. Above 478px it is the Headline step exactly. The rule bans sizes between the steps, not a clamp that travels between them.
+
 **The Tracking Inversion Rule.** Large type tracks negative (-0.03em and tighter); small type tracks wide (0.24em and up). The two move in opposite directions as size changes, and that contrast is the typographic signature.
 
 **The Mono Is Data Rule.** IBM Plex Mono appears only where a real figure from the timetable is printed. It is never a stylistic choice for labels or code-like decoration.
 
 ## Layout
 
-A single centred column of `1240px` maximum, with `3rem` (px-12) side padding held at every section — the container is consistent enough that the alternating grounds, not the width, are what mark one section from the next.
+A single centred column of `1240px` maximum, with the side gutter held at every section by one class, `.tgva-gutter` — `clamp(1.25rem, 4vw, 3rem)`, reaching the committed 3rem at 1200px and giving way below it. The 3rem is the desktop value, not the rule: fixed at every width it took 96px out of a 390px screen and 30% of a 320px one. The gutter also takes `max(…, env(safe-area-inset-left/right))`, so a landscape notch widens it rather than cropping the text.
 
-Section rhythm runs `pt-18`/`pt-20` to `pb-24`/`pb-32` (roughly 4.5rem top, 6rem–8rem bottom) on white blocks; orchid blocks are sized by content or fill the viewport outright (`min-h-svh` on Join Us, so arriving there shows that and nothing else).
+Section rhythm runs `pt-18`/`pt-20` to `pb-24`/`pb-32` (roughly 4.5rem top, 6rem–8rem bottom) on white blocks; orchid blocks are sized by content or fill the viewport outright (`min-h-svh` on the closing block, so arriving there shows that and nothing else).
 
 Multi-column content uses intrinsic grids rather than fixed column counts: `grid-cols-[repeat(auto-fit,minmax(min(100%,19rem),1fr))]` with `gap-x-14 gap-y-11`. Columns collapse when they run out of room, with no breakpoint to maintain.
 
-Responsive behaviour is handled at content-driven breakpoints, not a device scale: `68rem`, `46rem`, `34rem`, `26rem`, plus `860px` where the fleet stage changes layout and `(hover: hover)` where a hover-only affordance needs a pointer to exist. Anchor targets carry `scroll-margin-top: 7rem` so the sticky header never covers a landing.
+Responsive behaviour is handled at content-driven breakpoints, not a device scale: `68rem`, `46rem`, `34rem`, `26rem`, plus `860px` where the fleet stage changes layout, `60rem` where the closing block's figures leave their absolute places, and `(hover: hover)` where a hover-only affordance needs a pointer to exist. Anchor targets carry `scroll-margin-top: 7rem` so the sticky header never covers a landing.
+
+**Touch targets are gated on the pointer, not the width** — `@media (pointer: coarse)`, in one block at the end of the stylesheet. A touch laptop needs the same 44px a phone does and a narrow mouse-driven window does not, so the viewport is the wrong question. It has to be last in the file: it overrides base rules at equal specificity in the same layer, so it only wins by coming later.
+
+**Nothing readable or tappable lives inside the map's viewBox.** Everything there is scaled by `container ÷ 1000` — on a 390px screen that is 0.29, which turned an 11-unit label into 3.2px and a pin of `r=6` into a 3.5px target. The pins are HTML over the plot, positioned by `percentOf()`, where the dot stays small and the button carries 44px. `.tgva-map-plot` bounds that layer to the drawing, so the region card can drop into flow beneath it on a phone without stretching the layer and carrying every pin off its coordinates. The graticule labels and the focused city's code are still SVG and are simply dropped below `46rem`.
 
 ### Named Rules
 
-**The One Container Rule.** `max-w-[1240px]` and `px-12` on every block. A section that widens or narrows its own container to feel different is solving the problem the ground swap already solves.
+**The One Container Rule.** `max-w-[1240px]` and `px-12` on every block, the summary band's ruled cells included. Two things bleed and only two: the destination marquee, which would stop reading as a departures board if it looped inside a box, and the hero's video clip. A section that widens or narrows its own container to feel different is solving the problem the ground swap already solves.
 
 **The Intrinsic Column Rule.** Columns wrap by `auto-fit` + `minmax`, never by a breakpoint-keyed column count. Adding a region, a service or a crew member must never require touching a media query.
 
@@ -256,6 +263,11 @@ Kinetic and airline-mechanical. The label rolls out as a panel drops in behind i
 - **Primary:** Cabin Gold ground, Ink label → hover Cream ground, Royal Orchid label.
 - **Outline:** 1.5px `cream/50` border, Cream label → hover Cabin Gold border and label. The default on orchid grounds.
 - **Light:** Cream at 90%, Royal Orchid label → hover Cabin Gold ground, Ink label.
+
+The three above are the orchid-ground set, where cream is the readable colour. White grounds take their own pair, because cream on near-white is 1.1:1 — invisible, not subtle:
+
+- **Gold:** Cabin Gold ground, Ink label → hover Royal Orchid ground, Cream label. It reverses to the orchid rather than to cream, which would leave the pill with no edge and the label floating.
+- **Line:** 1.5px `brand/28` border, Royal Orchid label → hover Royal Orchid ground, Cream label. The outlined button for white grounds; `outline` is the orchid-ground one and disappears here.
 - **Motion tiers:** `still` (colour swap only) is the default and belongs on most buttons. `roll` (panel + label roll, 0.5s / 0.7s) and `beacon` (2.8s infinite gold ring, paused on hover) are reserved for the handful of calls the page is built around.
 - **Launch:** a button whose href leaves the site flies a plane across itself over 1.2s, laying a black trail, then opens the tab. Skipped entirely under `prefers-reduced-motion`.
 
@@ -268,7 +280,7 @@ Kinetic and airline-mechanical. The label rolls out as a panel drops in behind i
 ### Cards and Panels
 - **Floating card** (map region card): `14px` radius, `border: 1px rgba(54,10,111,0.16)`, `rgba(255,255,255,0.95)` with `backdrop-blur`, `18px` padding, map-card shadow. Used where the card genuinely sits over something.
 - **Sunken panel** (Inside TGVA): `14px` radius, Surface Sunken ground, `24px 28px` padding, `1px inset ring` at `brand/10`, **no shadow**. Used where the panel is recessed into the page, which is most of the time.
-- **Hero card:** `26px` top radius only, 2px `gold/55` top border, Orchid Deep ground, upward shadow. It climbs over the video clip on scroll.
+- **Hero card:** `26px` top radius only, 2px `gold/55` top border, Orchid Deep ground, upward shadow. It climbs over the video clip on scroll. This is the system's one sanctioned exception to Floating-Or-Flat: it carries a border *and* a shadow, and a thick accent border into a large radius. Both are deliberate and the detector will flag the second every time.
 
 ### Inputs
 - **Style:** `6px` radius, `1px brand/15` border, Surface ground, 11.5px text, left-padded for an inline icon.
@@ -278,14 +290,43 @@ Kinetic and airline-mechanical. The label rolls out as a panel drops in behind i
 ### Route Detail Ticket (signature)
 The system's most distinctive object. A stub in a `150deg` Route Orchid → Orchid Deep gradient, carrying an inverted `mix-blend-mode: screen` world map at 30% (no transparent PNG required — white inverts to black, and black is the identity for `screen`). The great-circle track draws itself, the aircraft flies it, the destination pin drops and keeps pinging. Below the perforation it becomes a boarding pass of labelled fields, then a card per aircraft type, then a barcode foot. A route the timetable has not reached yet turns warm and its flight stops halfway — the state is drawn, not captioned.
 
+### Shared heading furniture
+Three components own every heading on the site; none of them is re-drawn inline.
+- **`Eyebrow`:** the small wide-tracked label, fixed at `11.5px` / `0.26em`, uppercase. Tones are `brand` (Orchid Light, on white), `gold` (on an orchid ground), `gold-deep` (on white, where plain gold drops under 4.5:1) and `cream`. Six hand-rolled versions of this had drifted to six different sizes; there is one now.
+- **`SectionHeading`:** every `<h2>`. `inline` sets the eyebrow beside the title on one baseline with the gold-to-`brand/15` hairline running out to the right; `stack` sets it above, for a heading sharing a column with body copy. `tone="cream"` is the orchid grounds.
+- **`DiamondRule`:** the divider between story beats — hairline, orchid-light and gold diamonds mirrored either side, and an optional centred `label` where a block names itself rather than taking a heading.
+
+### Service index
+What We Do is the timetable's contents page: a photographic lead row on Orchid Deep for the service the picture is actually about, then hairline-ruled rows in an intrinsic two-column grid, every service visible at once. The part of each title the service is about is drawn in Cabin Gold Deep by `ServiceTitle`, from an `emphasis` substring so the copy stays one string in `content/site.ts`.
+
+### Network summary band
+The counts, after the chart and the fleet rather than before them, so each figure totals something already shown. Four ruled cells on white: the figure in Plex Mono at display scale, a Cabin Gold Deep label under it, the detail beneath that. Vertical hairlines divide the cells and never run down the outer edge; below `46rem` the columns stack and the vertical rules go, because a rule between stacked rows divides nothing. The one cell that names a thing rather than counting one leaves the figure face for the display face.
+
+### The Approach (closing block)
+The last thing between a reader and the membership form, and the one light ground in the closing stack — a radial gradient from white through Surface to Surface Sunken, opaque because the Orchid Abyss footer is sticky beneath it and this has to cover it.
+
+A cut-out aircraft stands nose-on at **90% of the page container**, a gold hairline runs behind it at wing height with dimension ticks falling exactly on the wingtips, and four counted figures sit below in the clear air either side of the gear, mirrored. The layer carries that 90%, not the picture inside it, so the horizon stays exactly as wide as the aircraft and the ticks keep marking the wingtips.
+
+Three numbers measured off `public/images/approach-aircraft.png` govern the block, so a replacement aircraft means re-measuring rather than re-judging: the **wing line at 43.3%** of the picture's height, where the span reaches both edges; the **fin band in the top 19%**, where the shape is a hairline 0.6% wide; and **contact at 92%**, with the mains at 37.5% and 62.5% and the nose at 50%.
+
+**Depth, not glow.** Gold is spent on the horizon, so the aircraft is grounded by two things that cost no colour: a contact shadow of three tight patches under the wheels plus one diffuse pool under the belly, and a soft front-light pool behind the nose so the ground agrees with a subject the design already describes as lit from the front. A halo around the aircraft would spend a second gold mark and break the One Light Rule.
+
+**The arrival** is the block's one authored moment, fired once when it scrolls into view and never looped. Its two state classes are set on the node directly rather than through React, for the reason `Reveal` does the same: swapping them across a render leaves a frame where the element has neither and paints at rest, which turns the arrival into a flash followed by a replay. The aircraft closes distance (scale 0.94 → 1 with a small settle, 0.9s), the horizon draws outward from the centre, the end ticks land after the line has stopped, and the figures rise in sequence. There is no ambient float: this system's motion is equipment moving precisely, and the aircraft is standing on the line, not hovering over it.
+
+**The figures are a split-flap board.** Each digit is an aperture one cell tall that clips, with a strip of digits travelling behind it — the travel belongs to the strip, never to the aperture, or the whole window slides out of the block instead of the digits moving inside it. Each column travels exactly twelve cells whatever digit it lands on, so one fixed `steps(12)` always finishes square on a glyph — varying the distance rather than the step count is what avoids half-flipped digits. Each reel starts rolling as its own figure begins to appear, because the roll's `backwards` fill holds a wrong digit until then and the figure being invisible is the only thing making that safe. The reel rests on the answer, so server markup and a no-JS visit both show the real number.
+
+**Layer-correct parallax.** The aircraft and the horizon drift as one layer and only the figures counter-drift. Moving the aircraft against the horizon would break the wing-line alignment the whole block is built on. The counter-drift sits on the figures' own wrapper rather than on each figure: their arrival animates `translate` with a `both` fill, so a drift declared on the figure itself is overwritten by the animation's final value the moment it lands.
+
+**The room below the picture is the figures'.** Two stacked rows come to roughly a quarter of the picture's height each and must start below the wings, which leaves no slack inside the picture alone — hence the stage's bottom padding. Padding percentages resolve against width, and the stage's height is the picture's, which is also set from width, so the arrangement is scale-invariant. Below `60rem` the figures return to flow in a row beneath the aircraft and that padding goes.
+
 ### Scroll Reveal
 `tgva-reveal`: 28px rise and fade over 0.7s on `--ease-out-soft`, staggered `80ms × index`. Applied by `Reveal.tsx` only after it confirms the element is off screen — never in server markup, or the page would arrive blank and stay blank until the bundle lands.
 
 ### Named Rules
 
-**The Earned Motion Rule.** `roll` and `beacon` are spent, not applied. If more than one beacon is visible at once, none of them means anything.
+**The Earned Motion Rule.** `roll` and `beacon` are spent, not applied. If more than one beacon is visible at once, none of them means anything. There is exactly one beacon on the site — the header's JOIN US, which follows the reader the whole way down. Everything else that asks for attention uses `roll`.
 
-**The Reduced-Motion Floor Rule.** Every animation in the system is disabled under `prefers-reduced-motion: reduce` (`0.01ms` duration, single iteration, smooth scroll off), and every JS-driven sequence — the plane launch above all — checks the media query itself rather than relying on the CSS override.
+**The Reduced-Motion Floor Rule.** Every animation in the system is disabled under `prefers-reduced-motion: reduce` (`0.01ms` duration, single iteration, smooth scroll off), and every JS-driven sequence — the plane launch above all — checks the media query itself rather than relying on the CSS override. The CSS block cannot reach SMIL: an `<animateMotion>` keeps running at full speed whatever the query says, so anything SMIL-driven reads `usePrefersReducedMotion()` and shortens its own `dur` to park the aircraft at its destination instead of flying it. The hero's ambient clip holds on its poster frame through `AmbientVideo` for the same reason.
 
 ## Do's and Don'ts
 
@@ -306,6 +347,6 @@ The system's most distinctive object. A stub in a `150deg` Route Orchid → Orch
 - **Don't** drift toward the generic SaaS landing page: gradient blobs, floating 3D shapes, a 3-up grid of `rounded-2xl` cards, Inter as the voice.
 - **Don't** drift toward the gamer or Discord-server aesthetic: neon on near-black, heavy glows, aggressive angular cuts. TGVA is an airline, not a clan.
 - **Don't** borrow real airline booking furniture — fare tables, date pickers, seat maps, promo carousels. TGVA sells nothing, and the interface must never imply it does.
-- **Don't** override `ActionLink` variant colours through `className`. Competing utilities resolve by stylesheet order, not by which one was passed last.
+- **Don't** override `ActionLink` variant colours through `className`. Competing utilities resolve by stylesheet order, not by which one was passed last. Pick the variant that matches the ground instead — there is one for each.
 - **Don't** draw a decorative arc where a real great-circle track is available. Every line on the map comes from actual coordinates.
 - **Don't** spend a third accent colour. Two brand colours and one neutral ramp is the whole palette.

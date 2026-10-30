@@ -14,27 +14,85 @@ import {
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/motion/Reveal";
 import { RouteDetailDialog } from "@/components/sections/RouteDetailDialog";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
+import { useMediaQuery } from "@/lib/use-media-query";
+import { CloseMark } from "@/components/ui/CloseMark";
 
 /** However many spokes a region has, the whole fan finishes drawing in this long. */
 const FAN_DRAW_MS = 700;
 
-const labelAnchor = {
-  right: { dx: 16, anchor: "start" as const, dy: 4 },
-  left: { dx: -16, anchor: "end" as const, dy: 4 },
-  below: { dx: 0, anchor: "middle" as const, dy: 26 },
-};
+/**
+ * Drawn rather than set as ⌕, which is missing from enough fonts to render as a
+ * box. The dismiss mark beside it is shared — see components/ui/CloseMark.
+ */
+function SearchMark() {
+  return (
+    <svg
+      aria-hidden
+      viewBox="0 0 14 14"
+      className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-ink-mute"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="square"
+    >
+      <circle cx="6" cy="6" r="4" />
+      <path d="m9.2 9.2 3 3" />
+    </svg>
+  );
+}
+
+type View = { x: number; y: number; width: number; height: number };
+
+const WORLD_VIEW: View = { x: 0, y: 0, ...MAP_VIEWBOX };
+
+/**
+ * The phone's frame: the network only, from the Atlantic to the Coral Sea and
+ * 68°N to 48°S. Every destination falls inside it with room for the labels, and
+ * dropping the empty Americas and Pacific roughly doubles the scale — on a 412px
+ * screen the whole world was 171px tall and DOMESTIC and ASIA sat 15px apart.
+ */
+const NETWORK_VIEW: View = (() => {
+  const [x0, y0] = project(-25, 68);
+  const [x1, y1] = project(162, -48);
+  return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
+})();
+
+/**
+ * How long the pointer has to rest on another pin before the open card swaps
+ * to it. Long enough that crossing a pin on the way to the card is ignored,
+ * short enough that pointing at one on purpose still feels immediate.
+ */
+const HOVER_INTENT_MS = 180;
+
+/** Same breakpoint the stylesheet drops the card into flow at. */
+const PHONE = "(max-width: 46rem)";
 
 /** Marker position as a percentage of the map box, so cards scale with it. */
-function percentOf(lon: number, lat: number) {
+function percentOf(lon: number, lat: number, view: View = WORLD_VIEW) {
   const [x, y] = project(lon, lat);
-  return { left: (x / MAP_VIEWBOX.width) * 100, top: (y / MAP_VIEWBOX.height) * 100 };
+  return {
+    left: ((x - view.x) / view.width) * 100,
+    top: ((y - view.y) / view.height) * 100,
+  };
 }
 
 export function WhereWeFly() {
   const [activeId, setActiveId] = useState<RegionId | null>(null);
   const [focusedCode, setFocusedCode] = useState<string | null>(null);
   const [openRoute, setOpenRoute] = useState<Destination | null>(null);
+  /** True while the open card owes its focus back to the pin that opened it. */
+  const [handOff, setHandOff] = useState(false);
+  /** Once a region has been opened the reader has found the map works. */
+  const [explored, setExplored] = useState(false);
   const planeMotion = useRef<SVGAnimateMotionElement>(null);
+  const pinRefs = useRef<Partial<Record<RegionId, HTMLButtonElement | null>>>({});
+  /** The pin or chip a keyboard opened the card from, owed focus when it closes. */
+  const returnTo = useRef<HTMLElement | null>(null);
+  const hoverTimer = useRef(0);
+  const reducedMotion = usePrefersReducedMotion();
+  const phone = useMediaQuery(PHONE);
+  const view = phone ? NETWORK_VIEW : WORLD_VIEW;
 
   const active = activeId ? regionsById[activeId] : null;
 
@@ -73,26 +131,89 @@ export function WhereWeFly() {
     if (flyingCode) planeMotion.current?.beginElement();
   }, [flyingCode]);
 
+  /**
+   * Opening used to happen on `focus`, which made the map a trap: the card
+   * renders after the `<svg>`, so tabbing towards it passed through every
+   * remaining pin and each one swapped the card out. Only the last region was
+   * ever reachable. Focus now does nothing but draw the ring; the pointer opens
+   * on hover and the keyboard opens on Enter, and a keyboard open sends focus
+   * into the card so the destinations are the next thing reached.
+   */
+  const open = useCallback((id: RegionId, opener: HTMLElement | null) => {
+    window.clearTimeout(hoverTimer.current);
+    returnTo.current = opener;
+    setActiveId(id);
+    setHandOff(opener !== null);
+    setExplored(true);
+  }, []);
+
   const close = useCallback(() => {
+    window.clearTimeout(hoverTimer.current);
+    // Give focus back to the control the card was opened from, not to the top
+    // of the page. A card the mouse opened has no opener, but if the keyboard
+    // has since gone into it, focus would still fall to <body> as it unmounts —
+    // so it goes to the region's own pin instead.
+    const inCard = document.activeElement?.closest(".tgva-region-card");
+    const target = returnTo.current ?? (inCard && activeId ? pinRefs.current[activeId] : null);
+    target?.focus({ preventScroll: true });
+    returnTo.current = null;
     setActiveId(null);
     setFocusedCode(null);
-  }, []);
+    setHandOff(false);
+  }, [activeId]);
+
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
 
   const hubPoint = project(hub.lon, hub.lat);
 
   return (
-    <section id="wherewefly" lang="en" className="bg-white px-12 pt-20 pb-32 md:pb-44">
+    <section id="wherewefly" lang="en" className="tgva-gutter bg-white pt-20 pb-32 md:pb-44">
       <div className="mx-auto max-w-[1240px]">
-        <SectionHeading title="Where We Fly" rule={false} />
+        <SectionHeading title="Where We Fly" />
 
-        <Reveal className="mt-12">
+        {/* Nothing on a dot map says "press me", so it is said once, in words.
+            It steps back after the first region is opened — invisible rather
+            than removed, so the map does not jump up under the reader's thumb. */}
+        <p
+          aria-hidden={explored}
+          className={`tgva-map-hint mt-8 transition-opacity duration-500 ${explored ? "opacity-0" : "opacity-100"}`}
+        >
+          <span className="tgva-map-hint-dot" aria-hidden />
+          <span className="tgva-map-hint-touch">Tap a region to see its routes</span>
+          <span className="tgva-map-hint-mouse">Hover or select a region to see its routes</span>
+        </p>
+
+        <Reveal className="mt-4">
+          {/* Leaving the map with the mouse closes the card — but not when
+              what the pointer "left" for is the ticket, which covers the map
+              the moment a city is chosen. The card is where the reader goes
+              back to for the next city, so it has to outlive the ticket.
+              Touch is excluded too: a tap ends in `pointerleave` (and a burst
+              of emulated mouse events) wherever it lands, which closed the
+              card on every tap outside it, the ticket's own X included.
+
+              Escape closes the card from anywhere in here, a pin included —
+              the card has its own handler for focus inside it. */}
           <div
             className="relative"
-            onMouseLeave={close}
+            onPointerLeave={(event) => {
+              if (event.pointerType === "mouse" && !openRoute) close();
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== "Escape" || !activeId) return;
+              event.stopPropagation();
+              close();
+            }}
           >
+            {/* The plot is its own box. The pin layer is `inset: 0` of it, so
+                when the card drops into flow below on a phone it cannot stretch
+                the layer and carry every pin off its coordinates. */}
+            <div className="tgva-map-plot">
             <svg
-              viewBox={`0 0 ${MAP_VIEWBOX.width} ${MAP_VIEWBOX.height}`}
-              className="block h-auto w-full overflow-visible"
+              viewBox={`${view.x} ${view.y} ${view.width} ${view.height}`}
+              /* Cropped, the drawing runs past its box on every side and has to
+                 be clipped; whole, nothing reaches the edge. */
+              className={`block h-auto w-full ${phone ? "overflow-hidden" : "overflow-visible"}`}
               role="img"
               aria-label="World map of the regions TGVA serves"
             >
@@ -110,7 +231,7 @@ export function WhereWeFly() {
                         className={lat === 0 ? "stroke-gold/50" : "stroke-brand/12"}
                         strokeDasharray={lat === 0 ? "6 6" : undefined}
                       />
-                      <text x={8} y={y - 5} className="fill-brand/40 font-display text-[9px] font-bold tracking-[0.1em]">
+                      <text x={8} y={y - 5} className="tgva-map-grid-label fill-brand/65 font-display text-[11px] font-bold tracking-[0.1em]">
                         {lat === 0 ? "EQUATOR" : `${Math.abs(lat)}°${lat > 0 ? "N" : "S"}`}
                       </text>
                     </g>
@@ -180,7 +301,7 @@ export function WhereWeFly() {
                           <text
                             x={point[0] + 7}
                             y={point[1] - 6}
-                            className="fill-brand font-display text-[8.5px] font-bold tracking-[0.1em]"
+                            className="tgva-map-city-code fill-brand font-display text-[11px] font-bold tracking-[0.1em]"
                           >
                             {city.code}
                           </text>
@@ -193,7 +314,16 @@ export function WhereWeFly() {
                   <g className="fill-brand">
                     <circle r={9} className="fill-brand-light opacity-25" />
                     <path d={PLANE_GLYPH} transform="rotate(90) translate(-12,-12)" />
-                    <animateMotion ref={planeMotion} dur="5.5s" repeatCount="indefinite" rotate="auto">
+                    {/* Reduced motion parks the aircraft at the destination
+                        instead of flying it: the spoke still reads as flown,
+                        and nothing loops forever. */}
+                    <animateMotion
+                      ref={planeMotion}
+                      dur={reducedMotion ? "0.01s" : "5.5s"}
+                      repeatCount={reducedMotion ? 1 : "indefinite"}
+                      fill="freeze"
+                      rotate="auto"
+                    >
                       <mpath href={`#spoke-${flyingCode}`} />
                     </animateMotion>
                   </g>
@@ -206,66 +336,100 @@ export function WhereWeFly() {
                 <circle cx={hubPoint[0]} cy={hubPoint[1]} r={4} className="fill-gold" />
               </g>
 
-              {/* region pins */}
+            </svg>
+
+            {/* The pins live in HTML, not in the drawing. Inside the viewBox a
+                label set at 11 units renders at 11 x (container / 1000) — 3.2px on
+                a 390px screen — and a pin of r=6 gives a 3.5px tap target. Out
+                here a pixel is a pixel and the button can carry 44px of target
+                whatever the dot measures. */}
+            <div className="tgva-map-pins">
               {regions.map((region) => {
                 const isActive = region.id === activeId;
                 const dimmed = activeId !== null && !isActive;
-                const [x, y] = project(region.pin.lon, region.pin.lat);
-                const label = labelAnchor[region.pin.labelPlacement];
+                const at = percentOf(region.pin.lon, region.pin.lat, view);
                 return (
-                  <g
+                  <button
                     key={region.id}
-                    tabIndex={0}
-                    role="button"
+                    ref={(node) => {
+                      pinRefs.current[region.id] = node;
+                    }}
+                    type="button"
+                    aria-expanded={isActive}
                     aria-label={region.title}
-                    className="cursor-pointer focus:outline-none"
-                    onMouseEnter={() => setActiveId(region.id)}
-                    onFocus={() => setActiveId(region.id)}
-                    onClick={() => (activeId === region.id ? close() : setActiveId(region.id))}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        setActiveId(region.id);
+                    data-place={region.pin.labelPlacement}
+                    className={`tgva-map-pin${isActive ? " is-active" : ""}${dimmed ? " is-dim" : ""}`}
+                    style={{ left: `${at.left}%`, top: `${at.top}%` }}
+                    /* Mouse only. On a touch screen `mouseenter` fires just before
+                       `click`, so opening on hover meant the tap opened the card
+                       and the click that followed closed it again — the pins were
+                       effectively untappable on a phone. */
+                    /* With nothing open the first pin opens at once. With a card
+                       already up, another pin has to be rested on: the straight
+                       line from ASIA to its card crosses EUROPE, and swapping on
+                       contact swapped the card out from under the pointer. */
+                    onPointerEnter={(event) => {
+                      if (event.pointerType !== "mouse") return;
+                      window.clearTimeout(hoverTimer.current);
+                      if (activeId === null) open(region.id, null);
+                      else if (activeId !== region.id) {
+                        hoverTimer.current = window.setTimeout(
+                          () => open(region.id, null),
+                          HOVER_INTENT_MS,
+                        );
                       }
                     }}
+                    onPointerLeave={() => window.clearTimeout(hoverTimer.current)}
+                    /* A mouse has already opened it on the way in, so its click
+                       only confirms — toggling there shut the card the reader
+                       had just pointed at. A tap or a keypress still toggles.
+                       `detail === 0` is a click the keyboard sent, which is what
+                       decides whether focus is handed to the card. A real button
+                       fires this for Enter and Space on its own, so there is no
+                       key handler here to double up with. */
+                    onClick={(event) => {
+                      if ((event.nativeEvent as PointerEvent).pointerType === "mouse") {
+                        open(region.id, null);
+                      } else if (activeId === region.id) close();
+                      else open(region.id, event.detail === 0 ? event.currentTarget : null);
+                    }}
                   >
-                    {!dimmed && (
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r={7}
-                        className="fill-brand-light origin-center"
-                        style={{ transformBox: "fill-box", animation: "tgva-pin-pulse 2.8s ease-in-out infinite" }}
-                      />
-                    )}
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r={isActive ? 9 : 6}
-                      strokeWidth={2}
-                      className={`stroke-white transition-all duration-300 ${
-                        isActive ? "fill-gold" : dimmed ? "fill-brand opacity-30" : "fill-brand"
-                      }`}
-                    />
-                    <text
-                      x={x + label.dx}
-                      y={y + (label.dy - 4)}
-                      textAnchor={label.anchor}
-                      className={`pointer-events-none font-display text-[11px] font-bold tracking-[0.16em] transition-all duration-300 ${
-                        isActive ? "fill-gold-deep" : dimmed ? "fill-brand opacity-30" : "fill-brand"
-                      }`}
-                    >
-                      {region.title}
-                    </text>
-                  </g>
+                    <span className="tgva-map-dot" aria-hidden />
+                    <span className="tgva-map-name">{region.title}</span>
+                  </button>
                 );
               })}
-            </svg>
+            </div>
+            </div>
+
+            {/* Phone only. Two of the four pins sit ~40px apart even zoomed,
+                so the regions are also offered as a row of full-size buttons —
+                the same toggle, without the aim. */}
+            <div className="tgva-region-chips" role="group" aria-label="Regions">
+              {regions.map((region) => {
+                const isActive = region.id === activeId;
+                return (
+                  <button
+                    key={region.id}
+                    type="button"
+                    aria-pressed={isActive}
+                    className={`tgva-region-chip${isActive ? " is-active" : ""}`}
+                    onClick={(event) => {
+                      if (isActive) close();
+                      else open(region.id, event.detail === 0 ? event.currentTarget : null);
+                    }}
+                  >
+                    {region.title}
+                  </button>
+                );
+              })}
+            </div>
 
             {active && (
               <RegionCard
                 region={active}
                 focusedCode={focused}
+                takeFocus={handOff}
                 onFocusCity={setFocusedCode}
                 onOpenRoute={setOpenRoute}
                 onClose={close}
@@ -285,18 +449,21 @@ export function WhereWeFly() {
 function RegionCard({
   region,
   focusedCode,
+  takeFocus,
   onFocusCity,
   onOpenRoute,
   onClose,
 }: {
   region: Region;
   focusedCode: string | null;
+  takeFocus: boolean;
   onFocusCity: (code: string | null) => void;
   onOpenRoute: (destination: Destination) => void;
   onClose: () => void;
 }) {
   const countries = countriesOf(region);
   const [query, setQuery] = useState("");
+  const cardRef = useRef<HTMLDivElement>(null);
 
   /**
    * Destinations bucketed by country, in the order the network lists them, with
@@ -317,7 +484,6 @@ function RegionCard({
     else groups.push([city.country, [city]]);
   }
   const { top } = percentOf(region.pin.lon, region.pin.lat);
-  const cardRef = useRef<HTMLDivElement>(null);
   const [topPx, setTopPx] = useState<number | null>(null);
 
   /**
@@ -334,8 +500,18 @@ function RegionCard({
   useLayoutEffect(() => {
     const place = () => {
       const card = cardRef.current;
-      const map = card?.offsetParent as HTMLElement | null;
-      if (!card || !map) return;
+      if (!card) return;
+
+      // Below 46rem the card is an ordinary block under the map, so there is
+      // nothing to measure and nothing to hide: `top` is inert on a static
+      // element, and setting it is what clears the first-frame visibility.
+      if (getComputedStyle(card).position === "static") {
+        setTopPx(0);
+        return;
+      }
+
+      const map = card.offsetParent as HTMLElement | null;
+      if (!map) return;
 
       const edge = 8;
       const markerY = (top / 100) * map.clientHeight;
@@ -348,10 +524,30 @@ function RegionCard({
     return () => window.removeEventListener("resize", place);
   }, [top, region.id]);
 
+  /**
+   * A card opened from the keyboard takes focus, so the list is the next stop.
+   * It waits for the card to be shown: on the first commit it is still hidden
+   * while it is measured, and focus() on a hidden element does nothing. It runs
+   * again for every region, because moving from one pin to the next by keyboard
+   * keeps the card mounted and `takeFocus` true throughout.
+   */
+  const shown = topPx !== null;
+  useEffect(() => {
+    if (takeFocus && shown) cardRef.current?.focus({ preventScroll: true });
+  }, [takeFocus, shown, region.id]);
+
   return (
     <div
       ref={cardRef}
-      className="absolute left-[3%] z-5 w-[min(21rem,80vw)] rounded-[14px] border border-brand/16 bg-white/95 p-4.5 shadow-[0_22px_46px_rgba(54,10,111,0.18)] backdrop-blur-lg max-sm:left-1/2 max-sm:-translate-x-1/2 sm:w-84"
+      tabIndex={-1}
+      role="group"
+      aria-label={`${region.title} destinations`}
+      onKeyDown={(event) => {
+        if (event.key !== "Escape") return;
+        event.stopPropagation();
+        onClose();
+      }}
+      className="tgva-region-card rounded-[14px] border border-brand/16 bg-white/95 p-4.5 backdrop-blur-lg"
       /* Hidden for the first frame only, while its height is measured. */
       style={{ top: topPx ?? 0, visibility: topPx === null ? "hidden" : "visible" }}
     >
@@ -359,16 +555,22 @@ function RegionCard({
         type="button"
         onClick={onClose}
         aria-label={`Close ${region.title}`}
-        className="absolute top-2.5 right-2.5 grid h-6.5 w-6.5 cursor-pointer place-items-center rounded-lg border border-brand/18 text-sm text-ink-mute transition-colors hover:bg-surface-sunken hover:text-brand"
+        /* 44px of target in the corner; the mark inside it stays the 26px the
+           card was drawn with. */
+        className="absolute top-0 right-0 grid size-11 cursor-pointer place-items-center text-ink-mute transition-colors hover:text-brand"
       >
-        ✕
+        <span className="grid size-6.5 place-items-center rounded-lg border border-brand/18 transition-colors hover:bg-surface-sunken">
+          <CloseMark />
+        </span>
       </button>
 
-      <h3 className="mt-1.5 mr-8 font-display text-[19px] font-extrabold tracking-[0.03em] text-brand">
+      <h3 className="mt-1.5 mr-11 font-display text-[22px] font-extrabold tracking-[0.06em] text-brand">
         {region.title}
       </h3>
 
-      <div className="mt-3 flex gap-4.5 border-t border-brand/15 pt-3">
+      {/* Wraps rather than overflows: the three labels at this tracking are
+          wider than the card, and TYPICAL SECTOR used to run out of it. */}
+      <div className="mt-3 flex flex-wrap gap-x-4.5 gap-y-3 border-t border-brand/15 pt-3">
         <Stat value={String(region.destinations.length)} label="DESTINATIONS" />
         {countries.length > 1 && <Stat value={String(countries.length)} label="COUNTRIES" />}
         <Stat value={region.sector} label="TYPICAL SECTOR" small />
@@ -378,6 +580,21 @@ function RegionCard({
           as one list, so they are grouped by country and — past a certain
           length — filterable. Search matches city, code or country, because
           people arrive knowing any one of the three. */}
+      <p className="mt-3 flex items-center gap-1.5 text-[12px] text-ink-mute">
+        <svg
+          aria-hidden
+          viewBox="0 0 14 10"
+          className="size-2.5 shrink-0 text-gold-deep"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="square"
+        >
+          <path d="M0.5 5h12M8.5 1l4 4-4 4" />
+        </svg>
+        Select a city for its route and aircraft
+      </p>
+
       {region.destinations.length > 8 && (
         <div className="relative mt-3">
           <input
@@ -386,32 +603,27 @@ function RegionCard({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search city, code or country"
             aria-label={`Search ${region.title} destinations`}
-            className="w-full rounded-md border border-brand/15 bg-surface py-1.5 pr-2.5 pl-7 text-[11.5px] text-ink-soft placeholder:text-ink-mute/60 focus-visible:border-gold focus-visible:outline-none"
+            className="w-full rounded-md border border-brand/15 bg-surface py-2 pr-2.5 pl-7 text-[12px] text-ink-soft placeholder:text-ink-mute focus-visible:border-gold focus-visible:outline-none"
           />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 font-mono text-[11px] text-ink-mute/70"
-          >
-            ⌕
-          </span>
+          <SearchMark />
         </div>
       )}
 
       <div
-        className="mt-2.5 max-h-80 overflow-y-auto overscroll-contain"
+        className="tgva-region-list mt-2.5 overflow-y-auto overscroll-contain"
         onMouseLeave={() => onFocusCity(null)}
       >
         {groups.map(([country, cities]) => (
           <section key={country}>
             {countries.length > 1 && (
-              <h4 className="sticky top-0 z-1 flex items-baseline justify-between gap-2 bg-white/95 py-1.5 font-display text-[9.5px] font-bold tracking-[0.18em] text-brand-light backdrop-blur-sm">
+              <h4 className="sticky top-0 z-1 flex items-baseline justify-between gap-2 bg-white/95 py-1.5 font-display text-[11.5px] font-bold tracking-[0.26em] text-brand-light backdrop-blur-sm">
                 {country.toUpperCase()}
-                <span className="font-mono text-[9.5px] font-normal tracking-normal text-ink-mute/70">
+                <span className="font-mono text-[11px] font-normal tracking-normal text-ink-mute">
                   {cities.length}
                 </span>
               </h4>
             )}
-            <ul className="grid grid-cols-2 gap-1 pb-1.5">
+            <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,7.5rem),1fr))] gap-1 pb-1.5">
               {cities.map((city) => (
                 <li key={city.code}>
                   <button
@@ -420,7 +632,10 @@ function RegionCard({
                     onFocus={() => onFocusCity(city.code)}
                     onClick={() => onOpenRoute(city)}
                     aria-label={`Route detail, Bangkok to ${city.city}`}
-                    className={`tgva-city-row relative flex w-full cursor-pointer items-baseline gap-2 rounded-md py-1.5 pr-2 pl-2.5 text-left text-[11.5px] transition-colors ${
+                    /* 33px of row, up from 29. Forty-five of these are tapped
+                       one-handed on a phone, which is the device this card is
+                       most used on. */
+                    className={`tgva-city-row relative flex w-full cursor-pointer items-baseline gap-2 rounded-md py-2.5 pr-2 pl-2.5 text-left text-[12px] transition-colors ${
                       focusedCode === city.code
                         ? "bg-surface-sunken text-brand"
                         : "text-ink-soft hover:bg-surface-sunken hover:text-brand"
@@ -428,16 +643,23 @@ function RegionCard({
                   >
                     {/* Colour is left to the .tgva-city-row rules: a text-* utility here
                         would outrank them and the code would never turn gold. */}
-                    <b className="font-mono text-[9.5px] font-semibold tracking-[0.04em]">
+                    <b className="font-mono text-[11px] font-semibold tracking-[0.04em]">
                       {city.code}
                     </b>
                     {city.city}
-                    <span
+                    {/* Drawn, not an arrow glyph set in the figure face —
+                        Plex Mono is for timetable figures only. */}
+                    <svg
                       aria-hidden
-                      className="tgva-city-go ml-auto font-mono text-[11px] text-gold-deep"
+                      viewBox="0 0 14 10"
+                      className="tgva-city-go ml-auto size-2.5 shrink-0 self-center text-gold-deep"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="square"
                     >
-                      →
-                    </span>
+                      <path d="M0.5 5h12M8.5 1l4 4-4 4" />
+                    </svg>
                   </button>
                 </li>
               ))}
@@ -457,15 +679,15 @@ function RegionCard({
 
 function Stat({ value, label, small }: { value: string; label: string; small?: boolean }) {
   return (
-    <div className="flex flex-col">
+    <div className="flex min-w-0 flex-col">
       <b
         className={`font-display font-extrabold text-brand tabular-nums ${
-          small ? "text-[13px]" : "text-[21px] leading-tight"
+          small ? "text-[13px]" : "text-[22px] leading-tight"
         }`}
       >
         {value}
       </b>
-      <span className="mt-1 font-display text-[10px] font-bold tracking-[0.16em] text-ink-mute">
+      <span className="mt-1 font-display text-[11px] leading-snug font-bold tracking-[0.2em] text-ink-mute">
         {label}
       </span>
     </div>

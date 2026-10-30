@@ -155,17 +155,40 @@ export function VideoControls({ videoRef, onTogglePlay, hovered }: Props) {
     event.preventDefault();
   };
 
-  /* Captions are the browser's to draw: setting a track's mode to `showing`
-     puts its cues over the frame with nothing here to render. The bar only
-     needs to know whether a track exists and which way it is set. */
+  /* Captions are drawn here, not by the browser. Native cues render inside
+     the video element, so they always paint beneath this bar and its gradient
+     — on touch screens, where the bar never hides, they were all but lost.
+     The track is kept `hidden` while captions are on: the browser still loads
+     and times the cues, and this component lays the text out above the bar. */
+  const [cueText, setCueText] = useState("");
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     const tracks = video.textTracks;
 
+    const syncCue = () => {
+      const active = Array.from(tracks)
+        .filter((track) => track.mode !== "disabled")
+        .flatMap((track) => Array.from(track.activeCues ?? []));
+      // Cue text can carry WebVTT voice and styling tags; only the words show.
+      setCueText(
+        active
+          .map((cue) => (cue instanceof VTTCue ? cue.text.replace(/<[^>]+>/g, "") : ""))
+          .filter(Boolean)
+          .join("\n"),
+      );
+    };
+
     const sync = () => {
       setHasCaptions(tracks.length > 0);
-      setCaptioned(Array.from(tracks).some((track) => track.mode === "showing"));
+      setCaptioned(Array.from(tracks).some((track) => track.mode !== "disabled"));
+      for (const track of Array.from(tracks)) {
+        // Anything that asks the browser to draw would double the text.
+        if (track.mode === "showing") track.mode = "hidden";
+        track.oncuechange = syncCue;
+      }
+      syncCue();
     };
 
     sync();
@@ -174,6 +197,7 @@ export function VideoControls({ videoRef, onTogglePlay, hovered }: Props) {
     return () => {
       tracks.removeEventListener("change", sync);
       tracks.removeEventListener("addtrack", sync);
+      for (const track of Array.from(tracks)) track.oncuechange = null;
     };
   }, [videoRef]);
 
@@ -182,7 +206,7 @@ export function VideoControls({ videoRef, onTogglePlay, hovered }: Props) {
     if (!video) return;
     const next = !captioned;
     for (const track of Array.from(video.textTracks)) {
-      track.mode = next ? "showing" : "hidden";
+      track.mode = next ? "hidden" : "disabled";
     }
     setCaptioned(next);
   };
@@ -203,103 +227,124 @@ export function VideoControls({ videoRef, onTogglePlay, hovered }: Props) {
   const shown = !pointerCanHover || hovered || scrubbing || focused;
 
   return (
-    <div
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      /* Faded out rather than unmounted, so keyboard users can still tab in.
-         Transition `translate`, not `transform`: Tailwind v4 moves elements with
-         the standalone property, so a transform transition would never fire. */
-      className={`absolute inset-x-0 bottom-0 z-3 transition-[opacity,translate] duration-300 ease-out-soft ${
-        shown ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"
-      }`}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-ink/85 via-ink/35 to-transparent"
-      />
-
-      <div className="relative mx-auto flex w-full max-w-[1240px] items-center gap-4 px-6 pb-5 md:px-12 md:pb-7">
-        <button
-          type="button"
-          onClick={onTogglePlay}
-          aria-label={playing ? "Pause" : "Play"}
-          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-cream/12 text-cream backdrop-blur-md transition-colors duration-200 hover:bg-gold hover:text-ink"
-        >
-          {/* Keyed so React remounts the glyph and the swap animation replays. */}
-          <span key={playing ? "pause" : "play"} className="flex animate-[tgva-icon-swap_260ms_var(--ease-out-soft)]">
-            {playing ? <PauseIcon /> : <PlayIcon />}
-          </span>
-        </button>
-
+    <>
+      {captioned && cueText ? (
+        /* Sits above the bar while it is up and drops to the frame's foot when
+           it fades, so the words never share space with the controls. */
         <div
-          ref={trackRef}
-          role="slider"
-          tabIndex={0}
-          aria-label="Seek"
-          aria-valuemin={0}
-          aria-valuemax={Math.floor(duration)}
-          aria-valuenow={Math.floor(currentTime)}
-          aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
-          onKeyDown={handleSliderKeyDown}
-          onPointerDown={(event) => {
-            event.currentTarget.setPointerCapture(event.pointerId);
-            setScrubbing(true);
-            seekToClientX(event.clientX);
-          }}
-          onPointerMove={(event) => {
-            if (scrubbing) seekToClientX(event.clientX);
-          }}
-          onPointerUp={() => setScrubbing(false)}
-          onPointerCancel={() => setScrubbing(false)}
-          className="group/track relative flex h-9 flex-1 cursor-pointer touch-none items-center rounded-full"
+          className={`pointer-events-none absolute inset-x-0 z-4 flex justify-center tgva-gutter transition-[bottom] duration-300 ease-out-soft ${
+            shown ? "bottom-[5.25rem] md:bottom-[6.25rem]" : "bottom-5 md:bottom-7"
+          }`}
         >
-          <div
-            className={`relative w-full overflow-hidden rounded-full bg-cream/25 transition-[height] duration-150 ${
-              scrubbing ? "h-1.5" : "h-1 group-hover/track:h-1.5"
-            }`}
-          >
-            <div className="absolute inset-y-0 left-0 bg-cream/30" style={{ width: `${loaded}%` }} />
-            <div className="absolute inset-y-0 left-0 bg-gold" style={{ width: `${progress}%` }} />
-          </div>
-          <span
-            aria-hidden
-            style={{ left: `${progress}%` }}
-            className={`pointer-events-none absolute size-3.5 -translate-x-1/2 rounded-full bg-gold shadow-[0_0_0_4px_rgba(21,14,34,0.35)] transition-transform duration-150 ${
-              scrubbing ? "scale-100" : "scale-0 group-hover/track:scale-100"
-            }`}
-          />
+          <p className="max-w-[min(90%,48rem)] whitespace-pre-line rounded-md bg-ink/80 px-3 py-1 text-center text-[clamp(0.875rem,1.6vw,1.375rem)] leading-snug text-cream">
+            {cueText}
+          </p>
         </div>
+      ) : null}
 
-        <p className="shrink-0 font-display text-[12.5px] font-semibold tabular-nums tracking-[0.06em] text-cream/85">
-          {formatTime(currentTime)} <span className="text-cream/45">/ {formatTime(duration)}</span>
-        </p>
+      <div
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        /* Faded out rather than unmounted, so keyboard users can still tab in.
+           Transition `translate`, not `transform`: Tailwind v4 moves elements with
+           the standalone property, so a transform transition would never fire. */
+        className={`absolute inset-x-0 bottom-0 z-3 transition-[opacity,translate] duration-300 ease-out-soft ${
+          shown ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-3 opacity-0"
+        }`}
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-ink/85 via-ink/35 to-transparent"
+        />
 
-        {hasCaptions ? (
+        <div className="relative mx-auto flex w-full max-w-[1240px] tgva-gutter items-center gap-4 pb-5 md:pb-7">
           <button
             type="button"
-            onClick={toggleCaptions}
-            aria-label={captioned ? "Turn captions off" : "Turn captions on"}
-            aria-pressed={captioned}
-            className={`flex size-11 shrink-0 items-center justify-center rounded-full backdrop-blur-md transition-colors duration-200 hover:bg-gold hover:text-ink ${
-              captioned ? "bg-gold text-ink" : "bg-cream/12 text-cream"
-            }`}
+            onClick={onTogglePlay}
+            aria-label={playing ? "Pause" : "Play"}
+            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-cream/12 text-cream backdrop-blur-md transition-colors duration-200 hover:bg-gold hover:text-ink"
           >
-            <CaptionsIcon on={captioned} />
+            {/* Keyed so React remounts the glyph and the swap animation replays. */}
+            <span key={playing ? "pause" : "play"} className="flex animate-[tgva-icon-swap_260ms_var(--ease-out-soft)]">
+              {playing ? <PauseIcon /> : <PlayIcon />}
+            </span>
           </button>
-        ) : null}
 
-        <button
-          type="button"
-          onClick={toggleMute}
-          aria-label={muted ? "Unmute" : "Mute"}
-          aria-pressed={muted}
-          className="flex size-11 shrink-0 items-center justify-center rounded-full bg-cream/12 text-cream backdrop-blur-md transition-colors duration-200 hover:bg-gold hover:text-ink"
-        >
-          <span key={muted ? "muted" : "unmuted"} className="flex animate-[tgva-icon-swap_260ms_var(--ease-out-soft)]">
-            {muted ? <SoundOffIcon /> : <SoundOnIcon />}
-          </span>
-        </button>
+          <div
+            ref={trackRef}
+            role="slider"
+            tabIndex={0}
+            aria-label="Seek"
+            aria-valuemin={0}
+            aria-valuemax={Math.floor(duration)}
+            aria-valuenow={Math.floor(currentTime)}
+            aria-valuetext={`${formatTime(currentTime)} of ${formatTime(duration)}`}
+            onKeyDown={handleSliderKeyDown}
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
+              setScrubbing(true);
+              seekToClientX(event.clientX);
+            }}
+            onPointerMove={(event) => {
+              if (scrubbing) seekToClientX(event.clientX);
+            }}
+            onPointerUp={() => setScrubbing(false)}
+            onPointerCancel={() => setScrubbing(false)}
+            className="group/track relative flex h-9 flex-1 cursor-pointer touch-none items-center rounded-full"
+          >
+            <div
+              className={`relative w-full overflow-hidden rounded-full bg-cream/25 transition-[height] duration-150 ${
+                scrubbing ? "h-1.5" : "h-1 group-hover/track:h-1.5"
+              }`}
+            >
+              <div className="absolute inset-y-0 left-0 bg-cream/30" style={{ width: `${loaded}%` }} />
+              <div className="absolute inset-y-0 left-0 bg-gold" style={{ width: `${progress}%` }} />
+            </div>
+            <span
+              aria-hidden
+              style={{ left: `${progress}%` }}
+              /* A ring, not a shadow. `0 0 0 4px` is a zero-offset halo — the
+                 decoration the system calls a drift signal — and what the thumb
+                 actually needs is a hard edge so it separates from the track. */
+              className={`pointer-events-none absolute size-3.5 -translate-x-1/2 rounded-full bg-gold ring-[3px] ring-ink/45 transition-transform duration-150 ${
+                scrubbing ? "scale-100" : "scale-0 group-hover/track:scale-100"
+              }`}
+            />
+          </div>
+
+          <p className="shrink-0 font-display text-[12.5px] font-semibold tabular-nums tracking-[0.06em] text-cream/85">
+            {formatTime(currentTime)} <span className="text-cream/45">/ {formatTime(duration)}</span>
+          </p>
+
+          {hasCaptions ? (
+            <button
+              type="button"
+              onClick={toggleCaptions}
+              aria-label="Captions"
+              aria-pressed={captioned}
+              title="Captions"
+              className={`flex size-11 shrink-0 items-center justify-center rounded-full backdrop-blur-md transition-colors duration-200 hover:bg-gold hover:text-ink ${
+                captioned ? "bg-gold text-ink" : "bg-cream/12 text-cream"
+              }`}
+            >
+              <CaptionsIcon on={captioned} />
+            </button>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label="Mute"
+            aria-pressed={muted}
+            title="Mute"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full bg-cream/12 text-cream backdrop-blur-md transition-colors duration-200 hover:bg-gold hover:text-ink"
+          >
+            <span key={muted ? "muted" : "unmuted"} className="flex animate-[tgva-icon-swap_260ms_var(--ease-out-soft)]">
+              {muted ? <SoundOffIcon /> : <SoundOnIcon />}
+            </span>
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
