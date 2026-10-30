@@ -44,7 +44,7 @@ export type AircraftImage = { src: string; width: number; height: number };
 /**
  * Every type the site can name, in one list, in three groups.
  *
- * The owner's breakdown of 2 Oct 2026 is eight active and four retired. A321neo
+ * The owner's breakdown of 2 Oct 2026 is eight active and four retired. A32Q
  * is in neither, but the timetable still assigns it to two routes — so it sits
  * here as `legacy`: resolvable by a route ticket, counted nowhere.
  *
@@ -81,10 +81,12 @@ const allTypes: Aircraft[] = [
   { code: "MD11", maker: "McDonnell Douglas", name: "MD-11", length: 61.6, height: 17.6, retired: true,
     image: { src: "/images/history/mcdonnell-douglas-md-11.png", width: 772, height: 267 } },
 
-  // Legacy. Named by THA694 and THA610 and by nothing else on the site. The
-  // active A321 above is now named A321-neo too, at the owner's request of
-  // 30 Oct 2026; this entry is kept apart because its code is not the same.
-  { code: "A32Q", maker: "Airbus", name: "A321neo", length: 44.5, height: 11.8, legacy: true },
+  // Legacy. Named by THA694 and THA610 and by nothing else on the site. It is
+  // the same airframe as the active A321 above, so it carries the same name —
+  // A321-neo, spelled one way everywhere at the owner's request of 30 Oct 2026
+  // — and the same image. It stays a separate entry because its code differs.
+  { code: "A32Q", maker: "Airbus", name: "A321-neo", length: 44.5, height: 11.8, legacy: true,
+    image: { src: "/images/airbus/airbus-a321.png", width: 898, height: 237 } },
 ];
 
 /** What the airline flies today. Every count on the site reads this. */

@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { type Destination } from "@/content/regions";
 import { aircraftCodes, typeByCode } from "@/content/fleet";
 import { routeDetail } from "@/lib/route-details";
-import { AircraftSilhouette } from "@/components/sections/AircraftSilhouette";
+import { AircraftPicture } from "@/components/sections/AircraftPicture";
 import { useScrollLock } from "@/lib/use-scroll-lock";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { CloseMark } from "@/components/ui/CloseMark";
@@ -223,12 +223,7 @@ export function RouteDetailDialog({
                         the rest of the ticket's secondary text uses. */}
                     {spec.retired ? <span className="tgva-ticket-plane-retired">Retired</span> : null}
                   </div>
-                  <AircraftSilhouette
-                    length={spec.length}
-                    height={spec.height}
-                    label={spec.name}
-                    className="tgva-ticket-silo"
-                  />
+                  <AircraftPicture aircraft={spec} sizes="15rem" className="tgva-ticket-silo" />
                 </div>
               );
             })}

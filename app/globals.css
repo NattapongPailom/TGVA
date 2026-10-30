@@ -1071,11 +1071,12 @@ select:disabled,
     gap: 0.6rem;
   }
 
-  /* With the figures gone the card is a name and a shape, so the profile sets
-     its height — narrow enough that three of them still read as a list. */
+  /* With the figures gone the card is a name and a picture, so the aircraft
+     sets its height — narrow enough that three of them still read as a list,
+     wide enough that the livery reads at all. */
   .tgva-ticket-plane {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 11rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 13rem);
     align-items: center;
     gap: 1.25rem;
     padding: 0.9rem 1.2rem;
@@ -1172,7 +1173,7 @@ select:disabled,
   }
 
   .tgva-ticket-silo {
-    max-width: 13rem;
+    max-width: 15rem;
   }
 
   /* Squeezed between two 38px codes the track was ~130px wide, which drew the
@@ -1778,9 +1779,10 @@ select:disabled,
     fill: color-mix(in srgb, var(--color-gold) 92%, transparent);
   }
 
-  /* The images face right, so they line up at the nose on the right edge and
-     a short type leaves its space on the left. */
-  .tgva-fleet-frame {
+  /* AircraftPicture's frame, on the boards and on the route ticket. The images
+     face right, so they line up at the nose on the right edge and a short type
+     leaves its space on the left. */
+  .tgva-aircraft-frame {
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -1789,7 +1791,7 @@ select:disabled,
   /* A tall airframe drawn long — the A380 — would come out taller than the
      frame, so the height is capped and the picture kept to its proportions
      against the nose. */
-  .tgva-fleet-frame img {
+  .tgva-aircraft-frame img {
     display: block;
     width: calc(100% * var(--tgva-scale, 1));
     height: auto;

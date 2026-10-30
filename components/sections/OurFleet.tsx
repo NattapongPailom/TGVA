@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import { longest, makers, tallest, makerSummary, retired, typeByCode, typesBy, type Maker } from "@/content/fleet";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { makers, makerSummary, retired, typesBy, type Maker } from "@/content/fleet";
+import { AircraftPicture } from "@/components/sections/AircraftPicture";
 import { AircraftSilhouette } from "@/components/sections/AircraftSilhouette";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -27,9 +28,6 @@ type Board = Maker | "History";
  * History, which has no panel, or to anything opened from the dropdown.
  */
 const SLIDE_HOME = "-100%";
-
-/** Metres. The A330-300's length — the smallest any image on a board is drawn. */
-const SMALLEST_DRAWN = typeByCode("A333")?.length ?? 0;
 
 const boardTypes = (board: Board) => (board === "History" ? retired : typesBy(board));
 
@@ -506,36 +504,12 @@ export function OurFleet() {
                     </p>
                   )}
 
-                  {/* The frame is the silhouettes' own box — as wide as the
-                      longest type and as tall as the tallest — so the board
-                      keeps one height from type to type. Inside it the image
-                      is sized by the type's length and lined up at the nose,
-                      but never drawn smaller than the A330-300: to scale, the
-                      A320 and A321 came out too small to read. */}
-                  {aircraft.image ? (
-                    <span
-                      className="tgva-fleet-silo tgva-fleet-frame"
-                      style={{ aspectRatio: `${longest * 1.03} / ${tallest}` }}
-                    >
-                      <Image
-                        key={aircraft.code}
-                        src={aircraft.image.src}
-                        alt={aircraft.name}
-                        width={aircraft.image.width}
-                        height={aircraft.image.height}
-                        sizes="(max-width: 859px) 100vw, 60vw"
-                        style={{ "--tgva-scale": Math.max(aircraft.length, SMALLEST_DRAWN) / longest } as CSSProperties}
-                      />
-                    </span>
-                  ) : (
-                    <AircraftSilhouette
-                      key={aircraft.code}
-                      length={aircraft.length}
-                      height={aircraft.height}
-                      label={aircraft.name}
-                      className="tgva-fleet-silo"
-                    />
-                  )}
+                  <AircraftPicture
+                    key={aircraft.code}
+                    aircraft={aircraft}
+                    sizes="(max-width: 859px) 100vw, 60vw"
+                    className="tgva-fleet-silo"
+                  />
 
                 </div>
               </div>
