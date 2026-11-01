@@ -180,7 +180,23 @@ export function SiteHeader() {
               on, so left in it read as a lighter rectangle; removing it also
               lets the bar show through the orchid's loops, which is how the
               mark is drawn to work. */}
-          <Link href="/#top" className="tgva-nav-logo" aria-label="TGVA — Thai Airways Virtual">
+          {/* Left to the router, the logo scrolled up only once: with the
+              address already at /#top a second tap changed nothing, and with
+              the sheet open the tap was swallowed by its scroll lock. On the
+              home page it closes whatever is open and scrolls by hand, a frame
+              later, once the lock has lifted. Elsewhere the router takes it. */}
+          <Link
+            href="/#top"
+            className="tgva-nav-logo"
+            aria-label="TGVA — Thai Airways Virtual"
+            onClick={(event) => {
+              setOpenMenu(null);
+              setSheetOpen(false);
+              if (!document.getElementById("top")) return;
+              event.preventDefault();
+              requestAnimationFrame(() => scrollToHash("/#top"));
+            }}
+          >
             <Image
               className="tgva-logo-light"
               src="/images/logo-tgva-gold.png"

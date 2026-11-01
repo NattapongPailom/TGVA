@@ -2298,8 +2298,10 @@ select:disabled,
     transition: --tgva-logo-h 0.45s var(--ease-out-soft);
   }
 
+  /* As tall as the controls beside it (the 2.75rem burger and calendar on a
+     narrow bar), so the mark grows without making the white bar any deeper. */
   .tgva-nav.is-compact .tgva-nav-logo {
-    --tgva-logo-h: 2.25rem;
+    --tgva-logo-h: 2.75rem;
   }
 
   .tgva-nav-logo img {
