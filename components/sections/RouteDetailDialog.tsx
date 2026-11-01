@@ -216,8 +216,16 @@ export function RouteDetailDialog({
               return (
                 <div key={code} className="tgva-ticket-plane">
                   <div>
-                    <span className="tgva-ticket-plane-name">{spec.name}</span>
-                    <span className="tgva-ticket-plane-code">{code}</span>
+                    {/* The hidden commas keep a screen reader from running
+                        name, code and label together as "A350-900A359". */}
+                    <span className="tgva-ticket-plane-name">
+                      {spec.name}
+                      <span className="sr-only">, </span>
+                    </span>
+                    <span className="tgva-ticket-plane-code">
+                      {code}
+                      {spec.retired ? <span className="sr-only">, </span> : null}
+                    </span>
                     {/* A fact about the fleet, not a fault with the route — so
                         it is set as a quiet label beside the code, in the ink
                         the rest of the ticket's secondary text uses. */}

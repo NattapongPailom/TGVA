@@ -69,8 +69,9 @@ export function AircraftSilhouette({
   return (
     <svg
       viewBox={`0 0 ${(fit ? L : longest) * 1.03} ${fit ? H : tallest}`}
-      role="img"
-      aria-label={label}
+      /* An empty label means the shape is decoration beside text that already
+         names it: hidden, rather than an image with no name. */
+      {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
       className={className}
     >
       <path d={[fuselage, fin, stabiliser, wing, nacelle].join(" ")} />

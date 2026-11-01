@@ -479,6 +479,9 @@ export function OurFleet() {
                       key={type.code}
                       type="button"
                       aria-pressed={index === typeIndex}
+                      /* Read from the two spans the name came out as one word,
+                         "A359A350-900", code first. */
+                      aria-label={type.code === type.name ? type.name : `${type.name}, ${type.code}`}
                       onClick={() => setTypeIndex(index)}
                       className="tgva-fleet-row"
                     >

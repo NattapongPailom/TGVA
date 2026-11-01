@@ -15,6 +15,10 @@ const SMALLEST_DRAWN = typeByCode("A333")?.length ?? 0;
  * nose, but never drawn smaller than the A330-300: to scale, the A320 and A321
  * came out too small to read. The fleet boards and the route ticket both draw
  * aircraft through this, so the two always agree.
+ *
+ * Decorative to a screen reader: everywhere it is used the type's name is set
+ * in text right beside it, and an alt naming the aircraft again only made the
+ * name read twice.
  */
 export function AircraftPicture({
   aircraft,
@@ -31,7 +35,7 @@ export function AircraftPicture({
       <AircraftSilhouette
         length={aircraft.length}
         height={aircraft.height}
-        label={aircraft.name}
+        label=""
         className={className}
       />
     );
@@ -39,12 +43,13 @@ export function AircraftPicture({
 
   return (
     <span
+      aria-hidden
       className={`tgva-aircraft-frame ${className ?? ""}`}
       style={{ aspectRatio: `${longest * 1.03} / ${tallest}` }}
     >
       <Image
         src={aircraft.image.src}
-        alt={aircraft.name}
+        alt=""
         width={aircraft.image.width}
         height={aircraft.image.height}
         sizes={sizes}
