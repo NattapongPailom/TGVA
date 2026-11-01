@@ -63,13 +63,12 @@ export const social = [
 export const about = {
   eyebrow: "WELCOME TO THAI AIRWAYS VIRTUAL",
   /**
-   * The page's h1. "About Us" was a navigation label standing in for one, which
-   * told a first-time reader nothing at the one moment they are deciding whether
-   * to stay. This is assembled only from the team's own second paragraph below —
-   * their motto, and where they say they are carrying it — so it claims nothing
-   * new. The eyebrow above it carries the airline's name.
+   * The page's h1, "About Us" at the owner's request (1 Nov 2026). The motto
+   * line it replaced, "Smooth as Silk, in the virtual skies.", still lives in
+   * the paragraph below and in the heading further down. The eyebrow above it
+   * carries the airline's name.
    */
-  h1: "Smooth as Silk, in the virtual skies.",
+  h1: "About Us",
   paragraphs: [
     "Thai Airways Virtual (TGVA) is a virtual airline and aviation community created for people who share a passion for flying, aviation, and the Infinite Flight experience.",
     "Inspired by the identity and hospitality of Thailand, TGVA brings the spirit of \u201cSmooth as Silk\u201d into the virtual skies. We aim to provide an enjoyable, professional, and welcoming environment where pilots can fly, connect, and grow together.",
