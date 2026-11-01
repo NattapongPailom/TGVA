@@ -3,6 +3,7 @@ import Image from "next/image";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { events } from "@/content/events";
+import { EventsComingSoon } from "@/components/sections/EventsComingSoon";
 
 export const metadata: Metadata = {
   title: "Events",
@@ -13,24 +14,25 @@ export const metadata: Metadata = {
 /**
  * The calendar behind the arrival announcement and the EVENTS button.
  *
- * A first pass: it lists whatever content/events.ts holds and says so plainly
- * when that is nothing, so neither link in the bar leads anywhere empty-handed.
+ * It lists whatever content/events.ts holds. Until that holds something, every
+ * EVENTS link on the site lands on a "coming soon" state instead, so none of
+ * them leads anywhere empty-handed.
  */
 export default function EventsPage() {
   return (
     <>
       <SiteHeader />
 
-      <main id="main" className="tgva-gutter min-h-[62svh] bg-white pt-16 pb-24">
-        <div className="mx-auto max-w-[1240px]">
-          <p className="font-display text-xs font-bold tracking-[0.26em] text-brand-light">
-            THE CALENDAR
-          </p>
-          <h1 className="mt-5 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-extrabold leading-none tracking-[-0.03em] text-brand">
-            Events
-          </h1>
+      <main id="main" className="tgva-gutter min-h-[62svh] bg-white">
+        {events.length ? (
+          <div className="mx-auto max-w-[1240px] pt-16 pb-24">
+            <p className="font-display text-xs font-bold tracking-[0.26em] text-brand-light">
+              THE CALENDAR
+            </p>
+            <h1 className="mt-5 font-display text-[clamp(2.5rem,5vw,4.25rem)] font-extrabold leading-none tracking-[-0.03em] text-brand">
+              Events
+            </h1>
 
-          {events.length ? (
             <ul className="mt-14 grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-8">
               {events.map((event) => (
                 <li
@@ -75,15 +77,10 @@ export default function EventsPage() {
                 </li>
               ))}
             </ul>
-          ) : (
-            <div className="mt-14 max-w-[52ch] border-t border-brand/15 pt-9">
-              <p className="text-lg leading-relaxed text-ink-soft text-pretty">
-                Nothing on the calendar yet. The next group flight, academy intake and community
-                night will be listed here — and announced the moment you arrive on the site.
-              </p>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <EventsComingSoon />
+        )}
       </main>
 
       {/* No Join Us above it here, so nothing for the footer to stick behind. */}

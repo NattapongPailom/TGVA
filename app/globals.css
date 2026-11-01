@@ -4722,12 +4722,14 @@ select:disabled,
     color: var(--color-brand);
   }
 
-  /* The alliance's own mark, on the brand ground, for its members only. */
+  /* The alliance's own mark, for its members only, on black — the ground the
+     alliance sets it on itself, where its grey triangles read as intended
+     rather than as a muddy tint over the orchid. */
   .tgva-partner-badge.is-star {
     padding-left: 6px;
-    border-color: var(--color-brand);
-    background: var(--color-brand);
-    color: var(--color-cream);
+    border-color: #0b0a0d;
+    background: #0b0a0d;
+    color: #fff;
   }
 
   .tgva-partner-badge img {
@@ -4884,5 +4886,84 @@ select:disabled,
   from {
     opacity: 0;
     translate: 0 8px;
+  }
+}
+
+/* ---- events: coming soon ----
+   What every EVENTS link lands on while the calendar is empty: one statement,
+   two ways on, centred in the page. The only ornament is a still route line
+   with an aircraft on it — no motion, no panels. */
+@layer components {
+  .tgva-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 40rem;
+    margin-inline: auto;
+    padding-block: clamp(4.5rem, 12vh, 8rem) clamp(5rem, 14vh, 9rem);
+    text-align: center;
+  }
+
+  .tgva-soon-route {
+    width: min(18rem, 78%);
+    height: auto;
+    overflow: visible;
+  }
+
+  .tgva-soon-arc {
+    fill: none;
+    stroke: color-mix(in srgb, var(--color-brand) 32%, transparent);
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    stroke-dasharray: 2 6;
+  }
+
+  .tgva-soon-route circle {
+    fill: var(--color-gold);
+  }
+
+  .tgva-soon-route .tgva-soon-gap {
+    fill: #fff;
+  }
+
+  .tgva-soon-route path:not(.tgva-soon-arc) {
+    fill: var(--color-brand);
+  }
+
+  .tgva-soon-eyebrow {
+    margin: 2.5rem 0 0;
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--color-brand-light);
+  }
+
+  .tgva-soon-title {
+    margin: 0.85rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--color-brand);
+  }
+
+  .tgva-soon-body {
+    max-width: 40ch;
+    margin: 1.35rem 0 0;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--color-ink-soft);
+    text-wrap: pretty;
+  }
+
+  .tgva-soon-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
   }
 }
