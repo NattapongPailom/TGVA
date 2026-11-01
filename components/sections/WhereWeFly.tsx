@@ -14,6 +14,7 @@ import {
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/motion/Reveal";
 import { RouteDetailDialog } from "@/components/sections/RouteDetailDialog";
+import { PartnerFleet } from "@/components/sections/PartnerFleet";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { CloseMark } from "@/components/ui/CloseMark";
@@ -437,6 +438,10 @@ export function WhereWeFly() {
             )}
           </div>
         </Reveal>
+
+        {/* Part of the map's section, not a section of its own: who TGVA flies
+            alongside, directly under where it flies. */}
+        <PartnerFleet />
       </div>
 
       {openRoute ? (
