@@ -363,8 +363,10 @@ export function OurFleet() {
             type="button"
             aria-pressed={board === "History"}
             /* Said in words, because the count on its own runs into the label:
-               "HISTORY 4" tells a screen reader nothing about what four is. */
-            aria-label={`Fleet history — ${retired.length} retired types`}
+               "HISTORY 4" tells a screen reader nothing about what four is. It
+               starts with the word on the button, so a voice-control user who
+               says "History" reaches it. */
+            aria-label={`History, ${retired.length} retired types`}
             onClick={() => {
               setPickerOpen(false);
               if (board === "History") closeBoard();
@@ -373,7 +375,7 @@ export function OurFleet() {
             className="tgva-fleet-history"
           >
             <BoardGlyph board="History" />
-            HISTORY
+            HISTORY{" "}
             <span className="tgva-fleet-history-count" aria-hidden>
               {retired.length}
             </span>

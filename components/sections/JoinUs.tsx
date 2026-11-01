@@ -44,7 +44,9 @@ const figures: Figure[] = [
  */
 export function JoinUs() {
   return (
-    <section id="join" className="tgva-approach relative z-1 flex min-h-svh flex-col justify-center">
+    /* It sits outside <main> (it shares a stacking context with the footer),
+       so naming it is what makes it a landmark a screen reader can jump to. */
+    <section id="join" aria-labelledby="join-heading" className="tgva-approach relative z-1 flex min-h-svh flex-col justify-center">
       <div className="tgva-approach-inner">
         <Reveal>
           <Eyebrow tone="gold-deep">{join.eyebrow}</Eyebrow>
@@ -52,7 +54,7 @@ export function JoinUs() {
 
         <div className="tgva-approach-scene">
           <Reveal index={1}>
-            <h2 className="tgva-approach-head">{join.heading}</h2>
+            <h2 id="join-heading" className="tgva-approach-head">{join.heading}</h2>
           </Reveal>
 
           <ApproachStage figures={figures} />
