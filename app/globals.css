@@ -2253,7 +2253,11 @@ select:disabled,
       border-color 0.45s var(--ease-out-soft);
   }
 
-  .tgva-nav.is-compact .tgva-nav-body {
+  /* The sheet is always white, whichever ground the bar above it is on. At the
+     top of the page it inherited the orchid values, so the Events button in it
+     drew cream on white and all but vanished. */
+  .tgva-nav.is-compact .tgva-nav-body,
+  .tgva-nav-sheet {
     --tgva-nav-bg: rgba(255, 255, 255, 0.95);
     --tgva-nav-line: rgba(54, 10, 111, 0.15);
     --tgva-nav-ink: rgba(54, 10, 111, 0.7);
