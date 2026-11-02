@@ -151,7 +151,7 @@ The site is on **Vercel**, connected to this repository.
 **Domain.** When the site gets its own domain, set `NEXT_PUBLIC_SITE_URL` in Vercel:
 
 ```
-NEXT_PUBLIC_SITE_URL=https://tgva.org
+NEXT_PUBLIC_SITE_URL=https://<your-domain>.com
 ```
 
 Metadata, `robots.txt`, `sitemap.xml` and social share cards all read this value. Until it is set,

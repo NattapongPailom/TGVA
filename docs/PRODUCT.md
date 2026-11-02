@@ -37,7 +37,7 @@ A Thai-identity virtual airline: "Smooth as Silk" carried into the virtual skies
 - Content is separated from markup in `tgva/content/` (`site.ts`, `regions.ts`, `fleet.ts`, `events.ts`). Design work changes layout without rewriting copy, and copy without touching layout.
 - Route data carries real airport coordinates; the world map draws actual great-circle tracks from Bangkok (`lib/world-map.ts`). Adding a destination in `regions.ts` updates map, region card and ticker together.
 - Fleet entries carry real published dimensions used only to draw every aircraft silhouette to one scale. No seat counts, ranges or aircraft totals exist — the team has published none.
-- Video files are deliberately excluded from Git. `public/video/who-we-are.mp4` and `showreel.mp4` are local; production must move them to a streaming service or CDN.
+- Video masters are deliberately excluded from Git. The two web-encoded files, `public/video/who-we-are.mp4` and `showreel.mp4` (about 8MB together), are committed and served from Vercel's CDN; at that size no separate streaming service is needed.
 - `NEXT_PUBLIC_SITE_URL` must be set to the real domain before deploy; metadata, robots, sitemap and share cards all read it.
 - Legal constraint: TGVA is not affiliated with Thai Airways International Public Company Limited, and the site must say so.
 
@@ -57,7 +57,7 @@ Real, usable:
 - Full fleet list, 14+ types across Airbus, Boeing and McDonnell Douglas (`content/fleet.ts`).
 - The team's own About, Story, Vision, Mission and services copy (`content/site.ts`), transcribed from their document.
 - Live membership form URL.
-- Discord invite: https://discord.gg/VuCfHXG3F — guild "Thai Airways Virtual.", supplied by the team on 2 Oct 2026. **The invite given was a temporary one, set to expire 27 Oct 2026.** If it has not been replaced with a non-expiring invite, this link is dead and the site is doing the one thing the principles below forbid.
+- Discord invite: https://discord.gg/cV84VuPEc9 — guild "Thai Airways Virtual.", a non-expiring invite (checked against the Discord API on 2 Nov 2026). It replaced an earlier temporary invite that expired on 27 Oct 2026.
 - Instagram channel: https://www.instagram.com/if.tgva/
 - Source media: `_source-media/masters/` (who-we-are, promote video masters) and `_source-media/reference-screenshots/`, including a logo file.
 
