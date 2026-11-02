@@ -3,6 +3,7 @@ import { Archivo, IBM_Plex_Mono, Sarabun } from "next/font/google";
 import { siteUrl } from "@/lib/site-config";
 import "./globals.css";
 import { IntroProvider } from "@/lib/intro";
+import { FloatingOrchid } from "@/components/motion/FloatingOrchid";
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             loading screen to anything waiting to animate in behind it. Safe on
             routes with no loader: see lib/intro.tsx. */}
         <IntroProvider>{children}</IntroProvider>
+        <FloatingOrchid />
       </body>
     </html>
   );
