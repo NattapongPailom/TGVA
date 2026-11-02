@@ -49,10 +49,22 @@ export const nav: NavItem[] = [
 /**
  * Community channels, shown as icons in the bar. A channel with no URL yet is
  * left out rather than linked nowhere — fill in the href and it appears.
+ * `short` is the name the phone menu prints when the full one will not fit.
  */
-export const social = [
-  { icon: "discord" as const, label: "Discord", href: "https://discord.gg/cV84VuPEc9" },
-  { icon: "instagram" as const, label: "Instagram", href: "https://www.instagram.com/if.tgva/" },
+export const social: {
+  icon: "discord" | "instagram" | "infiniteflight";
+  label: string;
+  short?: string;
+  href: string;
+}[] = [
+  { icon: "discord", label: "Discord", href: "https://discord.gg/cV84VuPEc9" },
+  { icon: "instagram", label: "Instagram", href: "https://www.instagram.com/if.tgva/" },
+  {
+    icon: "infiniteflight",
+    label: "Infinite Flight Community",
+    short: "IF Community",
+    href: "https://community.infiniteflight.com/u/thaiairwaysvirtual/summary",
+  },
 ];
 
 /**

@@ -13,6 +13,7 @@ import {
 import { nav, social, membershipFormUrl } from "@/content/site";
 import { events } from "@/content/events";
 import { ActionLink } from "@/components/ui/ActionLink";
+import { SocialIcon } from "@/components/ui/SocialIcon";
 import { useScrollLock } from "@/lib/use-scroll-lock";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { scrollToHash } from "@/lib/hash-scroll";
@@ -27,13 +28,6 @@ const COMPACT_ZONE = 120;
 /** Every section the bar can mark, in the order they appear on the page. */
 const SECTIONS = nav.flatMap((item) => item.sections);
 const KEY_OF = new Map(nav.flatMap((item) => item.sections.map((id) => [id, item.key])));
-
-const ICON = {
-  discord:
-    "M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.87-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.6 12.6 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.88 1.52.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.23-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.89.08.08 0 0 1-.01-.13l.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.07.07 0 0 1 .08.01l.37.29a.08.08 0 0 1-.01.13c-.6.35-1.22.64-1.87.89a.08.08 0 0 0-.04.11c.36.7.77 1.36 1.23 1.99a.08.08 0 0 0 .08.03 19.84 19.84 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.67-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42s.96-2.42 2.16-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.15-1.09-2.15-2.42s.95-2.42 2.15-2.42c1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z",
-  instagram:
-    "M12 2.2c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c4.35-.2 6.78-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.2-4.35-2.62-6.78-6.98-6.98C15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.4-11.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z",
-};
 
 /** Channels the team has given a URL for. The rest wait rather than lead nowhere. */
 const CHANNELS = social.filter((channel) => channel.href);
@@ -403,7 +397,7 @@ export function SiteHeader() {
                         onClick={() => setSheetOpen(false)}
                       >
                         <SocialIcon name={channel.icon} />
-                        {channel.label.toUpperCase()}
+                        {(channel.short ?? channel.label).toUpperCase()}
                       </a>
                     ))}
                   </div>
@@ -447,14 +441,6 @@ function SheetRow({ index, children }: { index: number; children: ReactNode }) {
     <div className="tgva-nav-row" style={{ "--i": index } as CSSProperties}>
       {children}
     </div>
-  );
-}
-
-function SocialIcon({ name }: { name: keyof typeof ICON }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden>
-      <path d={ICON[name]} />
-    </svg>
   );
 }
 

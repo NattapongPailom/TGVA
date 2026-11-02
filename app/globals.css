@@ -2829,13 +2829,16 @@ select:disabled,
     padding-top: 1.25rem;
   }
 
+  /* Three channels: side by side where they fit, otherwise two above and the
+     third across the full width below — never squeezed to unreadable pills. */
   .tgva-nav-sheet-pair {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
   }
 
   .tgva-nav-sheet-pair a {
-    flex: 1;
+    flex: 1 1 8.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
