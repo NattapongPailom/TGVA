@@ -18,14 +18,13 @@ export function WhoWeAre() {
         {/* Roleplay livery, not a membership claim: TGVA is a virtual airline and
             the alliance mark is part of the fiction it flies in. Set in cream
             rather than its own greyscale — the mark's dark faces fall to within
-            a few points of this ground and the star breaks up. */}
-        <Image
-          src="/images/star-alliance-mono.png"
-          alt="Star Alliance"
-          width={736}
-          height={552}
-          className="tgva-hero-alliance"
-        />
+            a few points of this ground and the star breaks up. The name is set
+            under it as live text, the way the alliance's own lockup reads, so
+            the image itself carries no alt. */}
+        <div className="tgva-hero-alliance">
+          <Image src="/images/star-alliance-cream.png" alt="" width={328} height={310} />
+          <span>STAR ALLIANCE</span>
+        </div>
 
         <div
           data-hero-clip
