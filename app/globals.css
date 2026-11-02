@@ -106,6 +106,48 @@
   white-space: nowrap;
 }
 
+/* The orchid watermark (OrchidAccent). The frame matches its block and clips
+   the flower at the block's edge, so only a corner of it shows. Kept faint:
+   it is the page's hospitality, not a picture to look at, and no line of copy
+   should have to read across more than a petal's edge. */
+.tgva-orchid {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.tgva-orchid img {
+  position: absolute;
+  height: auto;
+  max-width: none;
+}
+
+/* Opening: the top-right corner of the hero card, on Orchid Deep. */
+.tgva-orchid--hero img {
+  top: clamp(-6rem, -7vw, -3rem);
+  right: clamp(-6.5rem, -7vw, -3rem);
+  /* On a phone the eyebrow runs nearly the card's width; at 9rem only a
+     corner of the flower shows, clear of it. */
+  width: clamp(9rem, 24vw, 21rem);
+  opacity: 0.16;
+  rotate: -16deg;
+}
+
+/* Closing: the bottom-left of the invitation, mirrored, so the two read as a
+   pair across the page. Fainter, because on the light ground magenta carries
+   further than it does on purple. */
+.tgva-orchid--join img {
+  bottom: clamp(-6rem, -7vw, -3rem);
+  left: clamp(-6.5rem, -7vw, -3rem);
+  /* Clear of the stacked buttons on a phone. */
+  width: clamp(10rem, 26vw, 23rem);
+  opacity: 0.1;
+  scale: -1 1;
+  rotate: -16deg;
+}
+
 /* ---------------------------------------------------------------------------
    The page gutter.
 
@@ -3996,6 +4038,7 @@ select:disabled,
   }
 
   .tgva-approach-inner {
+    position: relative;
     width: min(1240px, 100%);
     margin-inline: auto;
   }

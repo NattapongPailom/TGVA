@@ -4,6 +4,7 @@ import { ActionLink } from "@/components/ui/ActionLink";
 import { HeroLift } from "@/components/motion/HeroLift";
 import { AmbientVideo } from "@/components/media/AmbientVideo";
 import { Reveal } from "@/components/motion/Reveal";
+import { OrchidAccent } from "@/components/ui/OrchidAccent";
 
 export function WhoWeAre() {
   return (
@@ -53,7 +54,8 @@ export function WhoWeAre() {
             The strip it uncovers below is the wrapper's own brand-deep, so the
             climb leaves nothing to see. */}
         <div className="tgva-hero-card relative z-2 mx-auto w-[min(100%-2rem,97.5rem)] md:w-[min(100%-4rem,97.5rem)] rounded-t-[26px] border-t-2 border-gold/55 bg-brand-deep shadow-[0_-26px_70px_rgba(12,2,30,0.62)]">
-          <div id="about" className="tgva-gutter mx-auto max-w-[1240px] pt-14 pb-12 text-cream">
+          <OrchidAccent placement="hero" />
+          <div id="about" className="tgva-gutter relative mx-auto max-w-[1240px] pt-14 pb-12 text-cream">
             <Reveal>
               <p className="font-display text-[12px] font-bold tracking-[0.26em] text-gold">
                 {about.eyebrow}

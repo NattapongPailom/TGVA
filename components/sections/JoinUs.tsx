@@ -3,6 +3,7 @@ import { regions } from "@/content/regions";
 import { fleet } from "@/content/fleet";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { OrchidAccent } from "@/components/ui/OrchidAccent";
 import { Reveal } from "@/components/motion/Reveal";
 import { ApproachStage, type Figure } from "@/components/sections/ApproachStage";
 
@@ -47,6 +48,7 @@ export function JoinUs() {
     /* It sits outside <main> (it shares a stacking context with the footer),
        so naming it is what makes it a landmark a screen reader can jump to. */
     <section id="join" aria-labelledby="join-heading" className="tgva-approach relative z-1 flex min-h-svh flex-col justify-center">
+      <OrchidAccent placement="join" />
       <div className="tgva-approach-inner">
         <Reveal>
           <Eyebrow tone="gold-deep">{join.eyebrow}</Eyebrow>
