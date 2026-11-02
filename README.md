@@ -168,6 +168,9 @@ full-quality masters stay outside the repository, in `../_source-media/masters/`
 - `content/events.ts` is empty until the team announces a real event.
 - No member counts, flight-hour totals or testimonials have been supplied. The site does not invent
   them.
+- Planned, not started (noted 2 Nov 2026): harmonise the fleet images so every aircraft shares one
+  colour tone, one lighting balance and one facing direction. Keep the current flipped orientation;
+  mirrored livery text is accepted.
 
 ---
 
