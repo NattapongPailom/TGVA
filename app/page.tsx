@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { WhoWeAre } from "@/components/sections/WhoWeAre";
 import { OurStory } from "@/components/sections/OurStory";
+import { WindowSeat } from "@/components/sections/WindowSeat";
 import { DestinationTicker } from "@/components/sections/DestinationTicker";
 import { InsideTgva } from "@/components/sections/InsideTgva";
 import { SilkBand } from "@/components/sections/SilkBand";
@@ -41,6 +42,10 @@ export default function HomePage() {
         <WhereWeFly />
         <SilkBand />
         <OurStory />
+        {/* Orchid Deep between two white blocks: the window seat is what
+            stops the map, the totals, the story and Inside TGVA running as
+            one unbroken white stretch. */}
+        <WindowSeat />
         <InsideTgva />
         <OurFleet />
       </main>

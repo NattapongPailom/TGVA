@@ -201,6 +201,59 @@
   }
 }
 
+/* The window seat (WindowSeat, WindowShade). */
+.tgva-window-seat {
+  padding-block: clamp(4rem, 8vw, 7rem) clamp(4.5rem, 9vw, 7.5rem);
+}
+
+/* The artwork's surround is the poster's black; the mask dissolves it into
+   Orchid Deep so the window sits in the ground rather than on a black card. */
+.tgva-window {
+  position: relative;
+  width: clamp(16rem, 34vw, 26rem);
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 78%, transparent 100%);
+}
+
+.tgva-window img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The opening, as measured off the artwork (see WindowShade). */
+.tgva-window-opening {
+  position: absolute;
+  left: 19.1%;
+  top: 13.84%;
+  width: 61.57%;
+  height: 82.46%;
+  border-radius: 50% / 36%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* A cabin shade: matte cream plastic, a little darker towards its pull lip.
+   Open is the default, so without the script the view is simply there. */
+.tgva-window-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, transparent 0 93%, rgba(54, 10, 111, 0.12) 93% 95.5%, rgba(255, 255, 255, 0.55) 95.5% 96.5%, rgba(54, 10, 111, 0.2) 100%),
+    linear-gradient(90deg, #e6e0d8 0%, #f4f0ea 45%, #ebe5dd 100%);
+  box-shadow: 0 6px 14px rgba(12, 2, 30, 0.35);
+  translate: 0 -101%;
+}
+
+.tgva-window.is-closed .tgva-window-shade {
+  translate: 0 0;
+}
+
+/* Mechanical: it starts slow, runs, and settles, like a shade pushed up by
+   hand. Only once armed, so closing it on load is not itself animated. */
+.tgva-window.is-armed .tgva-window-shade {
+  transition: translate 1.6s cubic-bezier(0.65, 0, 0.25, 1) 0.15s;
+}
+
 /* ---------------------------------------------------------------------------
    The page gutter.
 

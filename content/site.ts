@@ -22,7 +22,7 @@ export type NavItem = {
 };
 
 export const nav: NavItem[] = [
-  { key: "about", label: "About Us", href: "/#about", sections: ["top", "story"] },
+  { key: "about", label: "About Us", href: "/#about", sections: ["top", "story", "windowseat"] },
   {
     key: "inside",
     label: "Inside TGVA",
@@ -276,10 +276,21 @@ export const footerColumns = [
 export const footerNote =
   "Thai Airways Virtual is a non-profit flight simulation community. It is not affiliated with Thai Airways International Public Company Limited.";
 
+/**
+ * The window-seat interlude after Our Story. The tagline is the team's own,
+ * from their "Fly with TGVA" poster; `accent` is the phrase the poster sets in
+ * gold, and the page does the same.
+ */
+export const windowSeat = {
+  lead: "Fly the",
+  accent: "Smooth as Silk.",
+  close: "Fly with TGVA.",
+  action: { href: membershipFormUrl, label: "BECOME A MEMBER" },
+};
+
 export const join = {
   eyebrow: "THIS IS TGVA",
   heading: "This is where your journey begins.",
-  body: "Fly the Smooth as Silk. Fly with TGVA.",
   /**
    * Three facts, each already established elsewhere in PRODUCT.md: TGVA is a
    * non-profit, flying happens in Infinite Flight, and the hub is Bangkok
