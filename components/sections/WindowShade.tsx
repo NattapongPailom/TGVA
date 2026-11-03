@@ -5,7 +5,8 @@ import { useEffect, useRef } from "react";
 
 /**
  * The cabin window, with a shade that lifts once when the window comes into
- * view — equipment moving, the way the rest of the site moves.
+ * view — equipment moving, the way the rest of the site moves — and the
+ * sunrise behind it spilling into the cabin as it does.
  *
  * The shade is closed by this effect, never by the server, on the same terms
  * as Reveal: markup that ships with the view covered is a view nobody sees
@@ -46,17 +47,26 @@ export function WindowShade() {
     return () => observer.disconnect();
   }, []);
 
+  /* The light is part of the same stage as the shade, so the sky's glow
+     enters the cabin as the shade goes up rather than being there with the
+     shade still down. */
   return (
-    <div ref={ref} className="tgva-window">
-      <Image
-        src="/images/window-seat.jpg"
-        alt="The view from a cabin window: a TGVA winglet against a sunrise sky above the clouds."
-        width={890}
-        height={1055}
-        sizes="(min-width: 48rem) 26rem, 72vw"
-      />
-      <div aria-hidden className="tgva-window-opening">
-        <span className="tgva-window-shade" />
+    <div ref={ref} className="tgva-window-stage">
+      <span aria-hidden className="tgva-light-halo" />
+      <span aria-hidden className="tgva-light-shaft" />
+      <div className="tgva-window">
+        <Image
+          src="/images/window-seat.jpg"
+          alt="The view from a cabin window: a TGVA winglet against a sunrise sky above the clouds."
+          width={890}
+          height={1055}
+          sizes="(min-width: 48rem) 26rem, 72vw"
+        />
+        <span aria-hidden className="tgva-window-rim" />
+        <div aria-hidden className="tgva-window-opening">
+          <span className="tgva-window-sheen" />
+          <span className="tgva-window-shade" />
+        </div>
       </div>
     </div>
   );
