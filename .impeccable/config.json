@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "app/globals.css"
+        ],
+        "createdAt": "2026-11-04T18:54:25.249Z",
+        "reason": "Owner approved the Staff prototype on 5 Nov 2026 with this gold-foil EXECUTIVE class label (.tgva-crewpass-foil), a print-foil simulation whose shine tracks the pointer"
+      }
+    ]
+  }
+}
