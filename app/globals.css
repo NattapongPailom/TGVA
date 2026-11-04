@@ -5315,3 +5315,1294 @@ select:disabled,
     margin-top: 2.5rem;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Staff (StaffSection, StaffPass, StaffFlapWord, StaffManifest).
+
+   Passes in the site's ticket language — orchid strip, perforation, stub,
+   barcode — and the full roster as a General Declaration: an ivory crew
+   manifest with security print, stamps and a foil seal. Approved as a
+   prototype by the owner on 5 Nov 2026.
+--------------------------------------------------------------------------- */
+@layer components {
+  .tgva-staff {
+    container-type: inline-size;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  @media (min-width: 48rem) {
+    .tgva-staff {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+      column-gap: 4rem;
+    }
+
+    .tgva-staff-intro {
+      position: sticky;
+      top: 7rem;
+    }
+  }
+
+  .tgva-staff-lead {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.625rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-brand-light);
+  }
+
+  /* ---- the flap word ---- */
+  .tgva-flaps {
+    display: flex;
+    gap: 6px;
+    margin-top: 0.85rem;
+  }
+
+  .tgva-flap-tile {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(3rem, 7.4cqi, 4.125rem);
+    aspect-ratio: 66 / 86;
+    overflow: hidden;
+    border-radius: 9px;
+    background: linear-gradient(180deg, #2b0c5a 0%, var(--color-brand-deep) 49.5%, #14042e 50.5%, var(--color-brand-deep) 100%);
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.125rem, 5.4cqi, 3.125rem);
+    line-height: 1;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 10px 22px rgba(30, 6, 64, 0.22),
+      0 2px 4px rgba(30, 6, 64, 0.2);
+  }
+
+  /* The hinge: a dark split with a lit lower lip, and the two pins at its ends. */
+  .tgva-flap-tile::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 1.5px;
+    background: rgba(5, 1, 14, 0.75);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .tgva-flap-tile::before {
+    content: "";
+    position: absolute;
+    inset-inline: 3px;
+    top: calc(50% - 4px);
+    height: 8px;
+    background: linear-gradient(90deg, var(--color-brand-abyss) 0 5px, transparent 5px calc(100% - 5px), var(--color-brand-abyss) calc(100% - 5px));
+    opacity: 0.8;
+  }
+
+  .tgva-flap-tile.is-gold {
+    color: var(--color-gold);
+  }
+
+  .tgva-flap-tile.is-turning > span {
+    animation: tgva-flap-turn 0.07s linear;
+  }
+
+  .tgva-staff-rule {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tgva-staff-rule b {
+    width: 8px;
+    height: 8px;
+    rotate: 45deg;
+    background: var(--color-gold);
+  }
+
+  .tgva-staff-rule i {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--color-gold), rgba(54, 10, 111, 0.12));
+  }
+
+  .tgva-staff-viewall {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3rem;
+    padding: 0 1.375rem 0 1.125rem;
+    border-radius: 999px;
+    background: var(--color-brand);
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    cursor: pointer;
+    transition:
+      background-color 0.3s var(--ease-out-soft),
+      color 0.3s var(--ease-out-soft),
+      translate 0.3s var(--ease-out-soft);
+  }
+
+  .tgva-staff-viewall:hover,
+  .tgva-staff-viewall:focus-visible {
+    background: var(--color-gold);
+    color: var(--color-ink);
+    translate: 0 -2px;
+  }
+
+  .tgva-staff-count {
+    display: grid;
+    place-items: center;
+    min-width: 1.625rem;
+    height: 1.625rem;
+    padding-inline: 6px;
+    border-radius: 999px;
+    background: rgba(247, 243, 238, 0.16);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+
+  .tgva-staff-viewall:hover .tgva-staff-count,
+  .tgva-staff-viewall:focus-visible .tgva-staff-count {
+    background: rgba(21, 14, 34, 0.12);
+  }
+
+  /* ---- the passes ---- */
+  /* Two passes a row where each can be 17rem wide, one otherwise. */
+  .tgva-staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: 1.75rem 1.5rem;
+  }
+
+  /* Printed: each pass feeds down out of its slot, one after another. Armed
+     by StaffGrid only when the grid starts off screen, so the passes are never
+     hidden waiting for a script, and released when it scrolls into view. */
+  .tgva-staff-grid.is-armed .tgva-staff-print {
+    animation: tgva-crewpass-print 1.15s cubic-bezier(0.65, 0, 0.25, 1) backwards paused;
+    animation-delay: calc(var(--i, 0) * 150ms);
+  }
+
+  .tgva-staff-grid.is-armed.is-in .tgva-staff-print {
+    animation-play-state: running;
+  }
+
+  .tgva-staff-tilt {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(var(--lift, 0px));
+    filter: drop-shadow(0 2px 3px rgba(30, 6, 64, 0.08)) drop-shadow(0 10px 22px rgba(30, 6, 64, 0.08));
+    transition:
+      transform 0.55s var(--ease-out-soft),
+      filter 0.55s var(--ease-out-soft);
+  }
+
+  .tgva-staff-tilt[data-live] {
+    transition:
+      transform 0.09s linear,
+      filter 0.55s var(--ease-out-soft);
+  }
+
+  .tgva-staff-tilt:hover,
+  .tgva-staff-tilt:focus-within {
+    --lift: -6px;
+    filter: drop-shadow(0 4px 6px rgba(30, 6, 64, 0.1)) drop-shadow(0 26px 40px rgba(30, 6, 64, 0.2));
+  }
+
+  /* The notches are punched by the mask, which is why the shadow is a
+     drop-shadow on the wrapper: a box-shadow would be cut off with them. */
+  .tgva-crewpass {
+    --stub: 78px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--color-white);
+    -webkit-mask:
+      radial-gradient(circle 10px at 0 calc(100% - var(--stub)), #0000 96%, #000 100%),
+      radial-gradient(circle 10px at 100% calc(100% - var(--stub)), #0000 96%, #000 100%);
+    -webkit-mask-composite: source-in;
+    mask:
+      radial-gradient(circle 10px at 0 calc(100% - var(--stub)), #0000 96%, #000 100%) intersect,
+      radial-gradient(circle 10px at 100% calc(100% - var(--stub)), #0000 96%, #000 100%);
+  }
+
+  .tgva-crewpass.is-exec {
+    box-shadow: inset 0 0 0 1.5px rgba(216, 166, 87, 0.75);
+  }
+
+  .tgva-crewpass.is-open {
+    box-shadow: inset 0 0 0 1.5px rgba(54, 10, 111, 0.14);
+  }
+
+  .tgva-crewpass-light {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(circle 220px at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 70%);
+    mix-blend-mode: soft-light;
+    transition: opacity 0.4s;
+  }
+
+  .tgva-staff-tilt:hover .tgva-crewpass-light {
+    opacity: 1;
+  }
+
+  .tgva-crewpass-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: linear-gradient(120deg, var(--color-brand), var(--color-brand-deep));
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .tgva-crewpass.is-open .tgva-crewpass-head {
+    background: var(--color-surface-sunken);
+    color: var(--color-ink-soft);
+  }
+
+  .tgva-crewpass-body {
+    display: flex;
+    gap: 16px;
+    padding: 18px 18px 16px;
+  }
+
+  .tgva-crewpass-photo {
+    position: relative;
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 78px;
+    height: 96px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: linear-gradient(160deg, var(--color-brand-light), var(--color-brand-deep));
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .tgva-crewpass-photo-mark {
+    position: absolute;
+    right: -38%;
+    bottom: -38%;
+    width: 120%;
+    height: 120%;
+    opacity: 0.16;
+  }
+
+  .tgva-crewpass-photo small {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 6px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 8.5px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    opacity: 0.7;
+  }
+
+  .tgva-crewpass.is-open .tgva-crewpass-photo {
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1.5px rgba(54, 10, 111, 0.22);
+  }
+
+  .tgva-crewpass.is-open .tgva-crewpass-photo::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1.5px dashed rgba(54, 10, 111, 0.25);
+    border-radius: 9px;
+  }
+
+  .tgva-crewpass-seat {
+    width: 30px;
+    height: 30px;
+    fill: none;
+    stroke: var(--color-brand-light);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.7;
+  }
+
+  .tgva-crewpass-fields {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .tgva-crewpass-fields > div > span,
+  .tgva-crewpass-meta > div > span {
+    display: block;
+  }
+
+  .tgva-crewpass-label {
+    font-family: var(--font-display);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    color: var(--color-ink-mute);
+    text-transform: uppercase;
+  }
+
+  .tgva-crewpass-name {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--color-brand);
+    overflow-wrap: anywhere;
+  }
+
+  .tgva-crewpass.is-open .tgva-crewpass-name {
+    font-size: 16px;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-mute);
+  }
+
+  .tgva-crewpass-role {
+    font-family: var(--font-display);
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--color-ink);
+  }
+
+  .tgva-crewpass-meta {
+    display: flex;
+    gap: 18px;
+  }
+
+  .tgva-crewpass-mono {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--color-ink);
+  }
+
+  /* Foil: the shine sits where the pointer is. */
+  .tgva-crewpass-foil {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    background: linear-gradient(110deg, #a8741f 0%, #e9c27a calc(var(--mx, 50%) - 18%), #fff1cc var(--mx, 50%), #e9c27a calc(var(--mx, 50%) + 18%), #a8741f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .tgva-crewpass-chip {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(143, 98, 19, 0.45);
+    color: var(--color-gold-deep);
+    font-family: var(--font-display);
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+  }
+
+  .tgva-crewpass-blurb {
+    min-height: 46px;
+    padding: 0 18px 16px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--color-ink-soft);
+  }
+
+  .tgva-crewpass-perf {
+    margin-inline: 16px;
+    border-top: 2px dashed rgba(54, 10, 111, 0.16);
+  }
+
+  .tgva-crewpass-stub {
+    display: flex;
+    height: var(--stub);
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-inline: 18px;
+    transition: translate 0.35s var(--ease-out-soft);
+  }
+
+  /* About to be torn: the stub gives along the perforation. */
+  .tgva-staff-tilt:has(.tgva-crewpass-stub a:hover) .tgva-crewpass-stub,
+  .tgva-staff-tilt:has(.tgva-crewpass-stub a:focus-visible) .tgva-crewpass-stub {
+    translate: 0 3px;
+  }
+
+  .tgva-crewpass-bars {
+    display: flex;
+    height: 34px;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .tgva-crewpass-bars i {
+    display: block;
+    border-radius: 1px;
+    background: var(--color-route);
+  }
+
+  .tgva-crewpass.is-open .tgva-crewpass-bars i {
+    background: rgba(48, 22, 97, 0.28);
+  }
+
+  .tgva-staff-channels {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tgva-staff-channel {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    color: var(--color-brand);
+    box-shadow: inset 0 0 0 1px rgba(54, 10, 111, 0.16);
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      box-shadow 0.3s;
+  }
+
+  .tgva-staff-channel svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+  }
+
+  .tgva-staff-channel svg.is-wide {
+    width: 28px;
+    height: auto;
+  }
+
+  a.tgva-staff-channel:hover,
+  a.tgva-staff-channel:focus-visible {
+    background: var(--color-brand);
+    color: var(--color-cream);
+    box-shadow: inset 0 0 0 1px var(--color-brand);
+  }
+
+  /* A channel with no URL yet: its mark, quieter, and nothing to press. */
+  .tgva-staff-channel.is-idle {
+    color: rgba(54, 10, 111, 0.45);
+    cursor: default;
+  }
+
+  .tgva-crewpass-apply {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 8px;
+    padding-inline: 18px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1.5px rgba(54, 10, 111, 0.28);
+    color: var(--color-brand);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .tgva-crewpass-apply:hover,
+  .tgva-crewpass-apply:focus-visible {
+    background: var(--color-brand);
+    color: var(--color-cream);
+  }
+
+  /* ---- the General Declaration ---- */
+  .tgva-gd-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 85;
+    display: grid;
+    place-items: center;
+    padding: max(1.5rem, env(safe-area-inset-top)) 1.5rem;
+    background: rgba(14, 3, 38, 0.66);
+    backdrop-filter: blur(7px);
+    animation: tgva-gd-fade 0.35s ease both;
+  }
+
+  .tgva-gd-scrim.is-closing {
+    animation: tgva-gd-fade 0.35s ease reverse both;
+  }
+
+  .tgva-gd-sheet {
+    position: relative;
+    container-type: inline-size;
+    width: min(62.5rem, 100%);
+    max-height: calc(100svh - 3rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    border-radius: 6px;
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 38%), #fbf8f2;
+    color: var(--color-ink);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 2px 4px rgba(14, 3, 38, 0.18),
+      0 30px 60px rgba(14, 3, 38, 0.38),
+      0 70px 120px rgba(14, 3, 38, 0.35);
+    transform-origin: 50% 0;
+    animation: tgva-gd-unfold 0.95s cubic-bezier(0.2, 0.75, 0.2, 1) both;
+  }
+
+  .tgva-gd-scrim.is-closing .tgva-gd-sheet {
+    animation: tgva-gd-fold 0.38s cubic-bezier(0.6, 0, 0.8, 0.2) both;
+  }
+
+  .tgva-gd-close {
+    position: sticky;
+    top: 12px;
+    z-index: 6;
+    float: right;
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    margin: 12px 6px 0 0;
+    border-radius: 50%;
+    background: var(--color-brand-deep);
+    color: var(--color-cream);
+    box-shadow: 0 6px 16px rgba(14, 3, 38, 0.3);
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s;
+  }
+
+  .tgva-gd-close svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .tgva-gd-close:hover,
+  .tgva-gd-close:focus-visible {
+    background: var(--color-gold);
+    color: var(--color-ink);
+  }
+
+  /* The paper is its own layer so its texture, creases, strip and sweep run
+     the document's full length, not just the scroll box's first screen. */
+  .tgva-gd-paper {
+    position: relative;
+  }
+
+  .tgva-gd-paper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      transparent calc(33.3% - 1px),
+      rgba(54, 10, 111, 0.07) 33.3%,
+      rgba(255, 255, 255, 0.6) calc(33.3% + 1px),
+      transparent calc(33.3% + 2px),
+      transparent calc(66.6% - 1px),
+      rgba(54, 10, 111, 0.07) 66.6%,
+      rgba(255, 255, 255, 0.6) calc(66.6% + 1px),
+      transparent calc(66.6% + 2px)
+    );
+  }
+
+  .tgva-gd-paper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.55) 45%, transparent 60%);
+    background-position: 120% 0;
+    background-size: 250% 100%;
+    mix-blend-mode: soft-light;
+    animation: tgva-gd-sweep 1.6s 0.7s cubic-bezier(0.3, 0, 0.2, 1) both;
+  }
+
+  .tgva-gd-grain {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .tgva-gd-holo {
+    position: absolute;
+    top: 0;
+    right: 14px;
+    bottom: 0;
+    z-index: 2;
+    width: 16px;
+    background: linear-gradient(180deg, #e6d7ff, #ffe7c4 18%, #cdeffd 36%, #f5d0ff 54%, #fff1c2 72%, #d6e4ff 90%);
+    background-position: 0 var(--my, 30%);
+    background-size: 100% 260%;
+    box-shadow:
+      inset 1px 0 0 rgba(255, 255, 255, 0.7),
+      inset -1px 0 0 rgba(54, 10, 111, 0.08);
+    mix-blend-mode: multiply;
+    opacity: 0.55;
+    transition: background-position 0.2s linear;
+  }
+
+  .tgva-gd-holo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(180deg, rgba(54, 10, 111, 0.12) 0 1px, transparent 1px 6px);
+  }
+
+  .tgva-gd-guilloche {
+    display: block;
+    width: 100%;
+    height: 22px;
+    opacity: 0.38;
+  }
+
+  .tgva-gd-inner {
+    position: relative;
+    z-index: 1;
+    padding: 8px 46px 26px 34px;
+  }
+
+  .tgva-gd-head {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 26px;
+    padding: 14px 0 22px;
+    border-bottom: 2px solid var(--color-brand-deep);
+  }
+
+  .tgva-gd-seal {
+    width: 110px;
+    height: 110px;
+  }
+
+  .tgva-gd-seal-text {
+    font-family: var(--font-display);
+    font-size: 6.3px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    fill: var(--color-brand);
+  }
+
+  .tgva-gd-kicker {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--color-gold-deep);
+  }
+
+  .tgva-gd-title {
+    margin: 6px 0 4px;
+    font-family: var(--font-display);
+    font-size: clamp(1.625rem, 4.2cqi, 2.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--color-brand-deep);
+  }
+
+  .tgva-gd-subtitle {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-brand-light);
+  }
+
+  .tgva-gd-qrbox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tgva-gd-qr {
+    width: 96px;
+    height: 96px;
+    padding: 5px;
+    background: #fbf8f2;
+    box-shadow: inset 0 0 0 1px rgba(30, 6, 64, 0.25);
+  }
+
+  .tgva-gd-ref {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--color-brand-deep);
+  }
+
+  .tgva-gd-qrnote {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--color-ink-mute);
+  }
+
+  .tgva-gd-fields {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.45fr);
+    border-bottom: 1px solid rgba(30, 6, 64, 0.35);
+  }
+
+  .tgva-gd-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 14px 14px;
+    border-left: 1px solid rgba(30, 6, 64, 0.2);
+  }
+
+  .tgva-gd-field:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .tgva-gd-label {
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--color-ink-mute);
+  }
+
+  .tgva-gd-value {
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.35;
+    color: var(--color-ink);
+  }
+
+  .tgva-gd-value b {
+    font-weight: 500;
+    color: var(--color-brand);
+  }
+
+  .tgva-gd-crewlab {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 20px 0 8px;
+  }
+
+  .tgva-gd-crewlab h5 {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    color: var(--color-brand-deep);
+  }
+
+  .tgva-gd-crewlab span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--color-ink-mute);
+  }
+
+  .tgva-gd-ledger {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .tgva-gd-ledger th {
+    padding: 0 10px 8px;
+    border-bottom: 1px solid var(--color-brand-deep);
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--color-ink-mute);
+  }
+
+  .tgva-gd-ledger td {
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(30, 6, 64, 0.14);
+    vertical-align: middle;
+    transition: background-color 0.25s;
+  }
+
+  .tgva-gd-ledger td.is-idx {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-ink-mute);
+  }
+
+  .tgva-gd-ledger td.is-role {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .tgva-gd-ledger td.is-base {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+
+  .tgva-gd-ledger tbody tr:hover td {
+    background: rgba(91, 43, 168, 0.06);
+  }
+
+  .tgva-gd-ledger tbody tr:hover .tgva-gd-photo {
+    translate: 0 -2px;
+    box-shadow: 0 8px 14px rgba(30, 6, 64, 0.2);
+  }
+
+  /* A passport photo held by four mounts — two drawn, two implied. */
+  .tgva-gd-photo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 64px;
+    background: linear-gradient(160deg, var(--color-brand-light), var(--color-brand-deep));
+    color: var(--color-cream);
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 800;
+    transition:
+      translate 0.3s,
+      box-shadow 0.3s;
+  }
+
+  .tgva-gd-photo::before,
+  .tgva-gd-photo::after {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: linear-gradient(135deg, var(--color-brand-deep) 50%, transparent 50%);
+    opacity: 0.75;
+  }
+
+  .tgva-gd-photo::before {
+    top: -3px;
+    left: -3px;
+  }
+
+  .tgva-gd-photo::after {
+    right: -3px;
+    bottom: -3px;
+    rotate: 180deg;
+  }
+
+  .tgva-gd-photo.is-open {
+    background: repeating-linear-gradient(135deg, rgba(54, 10, 111, 0.05) 0 6px, transparent 6px 12px);
+    box-shadow: inset 0 0 0 1.5px rgba(54, 10, 111, 0.3);
+  }
+
+  .tgva-gd-photo.is-open::before,
+  .tgva-gd-photo.is-open::after {
+    opacity: 0.3;
+  }
+
+  .tgva-gd-typed {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    color: var(--color-brand-deep);
+  }
+
+  .tgva-gd-typed.is-open {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: var(--color-ink-mute);
+  }
+
+  .tgva-gd-caret {
+    display: inline-block;
+    width: 7px;
+    height: 1.05em;
+    margin-left: 2px;
+    vertical-align: -2px;
+    background: var(--color-brand-light);
+    animation: tgva-gd-blink 0.8s steps(1) infinite;
+  }
+
+  .tgva-gd-stamp {
+    display: inline-grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    mix-blend-mode: multiply;
+    animation: tgva-gd-stamp 0.42s cubic-bezier(0.3, 1.6, 0.5, 1) backwards;
+    animation-delay: calc(1050ms + var(--i, 0) * 170ms);
+  }
+
+  .tgva-gd-stamp.is-on {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    color: var(--color-brand-light);
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+    box-shadow:
+      inset 0 0 0 2.5px var(--color-brand-light),
+      inset 0 0 0 5px #fbf8f2,
+      inset 0 0 0 6px var(--color-brand-light);
+    rotate: -12deg;
+  }
+
+  .tgva-gd-stamp.is-standby {
+    padding: 7px 12px;
+    border: 2.5px solid #a8741f;
+    border-radius: 4px;
+    color: #a8741f;
+    font-size: 11px;
+    rotate: 5deg;
+  }
+
+  .tgva-gd-ledger .tgva-staff-channel {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .tgva-gd-ledger .tgva-staff-channels {
+    gap: 6px;
+  }
+
+  .tgva-gd-foot {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 22px;
+    margin-top: 6px;
+    padding-top: 20px;
+    border-top: 2px solid var(--color-brand-deep);
+  }
+
+  .tgva-gd-foil {
+    position: relative;
+    display: block;
+    width: 84px;
+    height: 84px;
+    filter: drop-shadow(0 2px 2px rgba(122, 82, 15, 0.35));
+  }
+
+  .tgva-gd-foil svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .tgva-gd-foil::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at var(--mx, 30%) var(--my, 30%), rgba(255, 255, 255, 0.85), transparent 45%);
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+
+  .tgva-gd-cert {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .tgva-gd-cert strong {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    color: var(--color-brand-deep);
+  }
+
+  .tgva-gd-cert p {
+    max-width: 52ch;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--color-ink-soft);
+  }
+
+  .tgva-gd-bars {
+    display: flex;
+    height: 44px;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .tgva-gd-bars i {
+    display: block;
+    border-radius: 1px;
+    background: var(--color-brand-deep);
+  }
+
+  .tgva-gd-qr-mobile {
+    display: none;
+    grid-column: 1 / -1;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .tgva-gd-qr-mobile .tgva-gd-qr {
+    width: 84px;
+    height: 84px;
+  }
+
+  .tgva-gd-micro {
+    margin-top: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 7px;
+    letter-spacing: 0.18em;
+    color: rgba(54, 10, 111, 0.45);
+  }
+
+  @container (max-width: 44rem) {
+    .tgva-gd-inner {
+      padding: 4px 34px 22px 18px;
+    }
+
+    .tgva-gd-head {
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .tgva-gd-seal {
+      width: 72px;
+      height: 72px;
+    }
+
+    .tgva-gd-qrbox {
+      display: none;
+    }
+
+    .tgva-gd-fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tgva-gd-field {
+      padding-left: 0;
+      border-left: 0;
+      border-bottom: 1px solid rgba(30, 6, 64, 0.12);
+    }
+
+    .tgva-gd-field:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .tgva-gd-ledger thead {
+      display: none;
+    }
+
+    .tgva-gd-ledger,
+    .tgva-gd-ledger tbody {
+      display: block;
+    }
+
+    .tgva-gd-ledger tr {
+      display: grid;
+      grid-template-columns: 60px minmax(0, 1fr) auto;
+      grid-template-areas:
+        "photo name status"
+        "photo role status"
+        "contact contact contact";
+      column-gap: 12px;
+      row-gap: 4px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(30, 6, 64, 0.14);
+    }
+
+    .tgva-gd-ledger td {
+      display: block;
+      padding: 0;
+      border: 0;
+    }
+
+    .tgva-gd-ledger td.is-idx,
+    .tgva-gd-ledger td.is-base {
+      display: none;
+    }
+
+    .tgva-gd-ledger td.is-photo {
+      grid-area: photo;
+    }
+
+    .tgva-gd-ledger td.is-name {
+      grid-area: name;
+      align-self: end;
+    }
+
+    .tgva-gd-ledger td.is-role {
+      grid-area: role;
+    }
+
+    .tgva-gd-ledger td.is-status {
+      grid-area: status;
+      align-self: center;
+    }
+
+    .tgva-gd-ledger td.is-contact {
+      grid-area: contact;
+      padding-top: 8px;
+    }
+
+    .tgva-gd-typed {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .tgva-gd-stamp.is-on {
+      width: 62px;
+      height: 62px;
+      font-size: 8.5px;
+    }
+
+    .tgva-gd-foot {
+      grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    .tgva-gd-foil {
+      width: 64px;
+      height: 64px;
+    }
+
+    .tgva-gd-bars {
+      grid-column: 1 / -1;
+    }
+
+    .tgva-gd-qr-mobile {
+      display: flex;
+    }
+  }
+}
+
+@keyframes tgva-flap-turn {
+  from {
+    opacity: 0.5;
+    transform: scaleY(0.25);
+  }
+}
+
+@keyframes tgva-crewpass-print {
+  from {
+    opacity: 0.4;
+    clip-path: inset(0 0 100% 0);
+    translate: 0 -46px;
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    translate: 0 0;
+  }
+}
+
+@keyframes tgva-gd-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes tgva-gd-unfold {
+  0% {
+    opacity: 0;
+    transform: perspective(1600px) translateY(60px) rotateX(64deg) scaleY(0.36);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes tgva-gd-fold {
+  to {
+    opacity: 0;
+    transform: perspective(1600px) translateY(40px) rotateX(55deg) scaleY(0.4);
+  }
+}
+
+@keyframes tgva-gd-sweep {
+  to {
+    background-position: -60% 0;
+  }
+}
+
+@keyframes tgva-gd-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes tgva-gd-stamp {
+  0% {
+    opacity: 0;
+    scale: 1.9;
+  }
+  60% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0.9;
+    scale: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tgva-staff-print,
+  .tgva-gd-scrim,
+  .tgva-gd-sheet,
+  .tgva-gd-stamp,
+  .tgva-gd-paper::after,
+  .tgva-flap-tile.is-turning > span {
+    animation: none !important;
+  }
+
+  .tgva-staff-tilt,
+  .tgva-staff-tilt[data-live] {
+    transform: none;
+    transition: filter 0.3s;
+  }
+
+  .tgva-crewpass-stub {
+    transition: none;
+  }
+
+  .tgva-staff-tilt:has(.tgva-crewpass-stub a:hover) .tgva-crewpass-stub {
+    translate: none;
+  }
+
+  .tgva-gd-caret {
+    display: none;
+  }
+}

@@ -26,7 +26,7 @@ export const nav: NavItem[] = [
   {
     key: "inside",
     label: "Inside TGVA",
-    sections: ["what", "vision"],
+    sections: ["what", "vision", "staff"],
     children: [
       {
         label: "What We Do",
@@ -39,6 +39,12 @@ export const nav: NavItem[] = [
         href: "/#vision",
         section: "vision",
         note: "What we fly for, and the promises behind it",
+      },
+      {
+        label: "Staff",
+        href: "/#staff",
+        section: "staff",
+        note: "The people who run TGVA, and the seats still open",
       },
     ],
   },
@@ -113,23 +119,35 @@ export const story = {
 };
 
 /**
- * The team, as the document lists them. No surface renders this today — the
- * Meet the Staff section was removed from the page — but it is the team's own
- * transcribed copy, so it stays here rather than being deleted with the
- * section that used to show it. A post with no name against it yet is
- * shown as open rather than left off — the structure is the airline's, and the
- * names arrive as they are appointed.
+ * The staff, as the team's document lists them, shown in the Staff block at
+ * the foot of Inside TGVA. A post with no name against it yet prints as a
+ * standby pass and an open line on the manifest, rather than being left off —
+ * the structure is the airline's, and the names arrive as they are appointed.
+ *
+ * `photo` is a path under public/; until one is given the pass shows the
+ * person's initials. `links` takes a URL per channel; a channel without one
+ * shows its mark as not yet linked rather than linking nowhere.
  */
-export const team = [
+export type StaffLinks = Partial<Record<"discord" | "instagram" | "infiniteflight", string>>;
+
+export const team: {
+  role: string;
+  name: string | null;
+  blurb: string;
+  photo?: string;
+  links?: StaffLinks;
+}[] = [
   {
     role: "Chief Executive Officer",
     name: "Tjb0709",
     blurb: "Leads TGVA and sets the direction the community flies in.",
+    links: {},
   },
   {
     role: "Chief Operating Officer",
     name: "IFTH-Prichachan",
     blurb: "Runs the airline day to day and keeps operations moving.",
+    links: {},
   },
   {
     role: "Chief Pilot",
@@ -147,6 +165,31 @@ export const team = [
     blurb: "Brand, media and everything the outside world sees of TGVA.",
   },
 ];
+
+/** The Staff block's own copy, approved by the owner on 5 Nov 2026. */
+export const staff = {
+  eyebrow: "INSIDE TGVA",
+  lead: "Meet the",
+  word: "STAFF",
+  description:
+    "The people who keep TGVA flying. Our staff lead the airline, set the standards every route is flown to, and welcome each new pilot into the community. Some seats are still open — yours could be next.",
+  /** How many passes the block shows before "View all staff". */
+  shown: 4,
+};
+
+/**
+ * The full roster opens as a General Declaration — the document an airline
+ * files listing the crew aboard. `reference` is a document reference, not a
+ * flight number: there is no flight, and the page does not invent one.
+ */
+export const manifest = {
+  kicker: "THAI AIRWAYS VIRTUAL · TGVA",
+  title: "General Declaration",
+  subtitle: "Crew Manifest",
+  reference: "TGVA/GD/STAFF",
+  certification: "CERTIFIED · TGVA OPERATIONS",
+  note: "This declaration lists TGVA\u2019s staff positions. Open positions are filled from the membership.",
+};
 
 /**
  * `emphasis` is the part of the title drawn in gold on the card — the word the

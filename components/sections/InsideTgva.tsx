@@ -6,15 +6,19 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { DiamondRule } from "@/components/ui/DiamondRule";
 import { Reveal } from "@/components/motion/Reveal";
+import { StaffSection } from "@/components/sections/StaffSection";
 
 /**
- * Three chapters under one heading. The left column stays put while the right
- * one scrolls, and the rail at its foot marks where the reader has got to —
- * the ids below are what the rail and the site nav both point at.
+ * Three chapters under one heading: What We Do and Vision & Mission in the
+ * columns, Staff in its own block beneath them. The left column stays put
+ * while the right one scrolls, and the rail at its foot marks where the
+ * reader has got to — the ids below are what the rail and the site nav both
+ * point at.
  */
 const CHAPTERS: readonly Chapter[] = [
   { id: "what", label: "What We Do" },
   { id: "vision", label: "Vision & Mission" },
+  { id: "staff", label: "Staff" },
 ];
 
 export function InsideTgva() {
@@ -118,6 +122,8 @@ export function InsideTgva() {
 
         </div>
       </div>
+
+      <StaffSection />
     </section>
   );
 }

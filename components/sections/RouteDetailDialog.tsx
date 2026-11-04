@@ -10,6 +10,7 @@ import { useScrollLock } from "@/lib/use-scroll-lock";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { CloseMark } from "@/components/ui/CloseMark";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
+import { barcode } from "@/lib/barcode";
 
 /** Bangkok's own details, the origin of every route in the network. */
 const ORIGIN = { code: "BKK", city: "Bangkok", country: "Thailand" };
@@ -23,19 +24,6 @@ const PIN =
   "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z";
 
 const format = (value: number) => value.toLocaleString("en-US");
-
-/**
- * Bars derived from the flight number, so a route always prints the same code
- * and two different routes never print the same one.
- */
-function barcode(seed: string) {
-  let state = 0;
-  for (const character of seed) state = (state * 31 + character.charCodeAt(0)) % 9973;
-  return Array.from({ length: 46 }, () => {
-    state = (state * 1103515245 + 12345) % 2147483648;
-    return { height: 40 + ((state >> 8) % 60), width: (state >> 4) % 3 === 0 ? 3 : 2 };
-  });
-}
 
 export function RouteDetailDialog({
   destination,
