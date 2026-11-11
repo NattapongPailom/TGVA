@@ -1,0 +1,45 @@
+# The required check `rules`: red whenever a pull request touches a path that
+# sets how the site is checked, built or worked on. Such a pull request does not
+# auto-merge; it waits for the owner. The list is in docs/AUTOMATION.md.
+#
+# It runs on pull_request_target, so the copy of this file on main is the one
+# that runs: a pull request cannot edit its way past it. It never checks out the
+# pull request's code; it only reads the list of changed file names.
+name: Rules
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check the changed paths
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          # A rename counts under both names, so nothing can be moved out of a
+          # rule path unnoticed.
+          files=$(gh api --paginate "repos/$REPO/pulls/$PR/files" \
+            --jq '.[] | .filename, (.previous_filename // empty)')
+
+          hits=$(printf '%s\n' "$files" | grep -E \
+            -e '^(\.github|\.claude|scripts|tests)/' \
+            -e '^(\.mcp\.json|CLAUDE\.md|AGENTS\.md|package\.json|package-lock\.json|\.nvmrc)$' \
+            -e '^(next\.config\.ts|eslint\.config\.mjs|tsconfig\.json|playwright\.config\.ts)$' \
+            | sort -u || true)
+
+          if [ -n "$hits" ]; then
+            echo "::error::This pull request changes rule paths, so it waits for the owner."
+            printf '%s\n' "$hits" | sed 's/^/  /'
+            exit 1
+          fi
+
+          echo "No rule paths touched."

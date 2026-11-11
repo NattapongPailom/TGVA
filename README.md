@@ -64,7 +64,7 @@ The site makes that case with evidence, not claims:
 
 ## Getting started
 
-You need Node.js 20 or later.
+You need Node.js 24 (the version in `.nvmrc`).
 
 ```bash
 npm install
@@ -74,9 +74,12 @@ npm run dev      # http://localhost:3000
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Starts the development server with hot reload. |
-| `npm run build` | Makes the production build. Run it before every push. |
+| `npm run build` | Makes the production build. |
 | `npm run start` | Serves the production build locally. |
 | `npm run lint` | Runs ESLint. |
+| `npm run typecheck` | Generates the route types and runs the TypeScript compiler. |
+| `npm run test:smoke` | Runs the smoke tests in `tests/smoke/` against a production build. Run `npx playwright install chromium webkit` once first. Set `BASE_URL` to test a deployed site instead. |
+| `npm run verify` | Lint, typecheck, build and smoke tests: the same check CI runs. Run it before every push. |
 
 ## Project structure
 
@@ -100,7 +103,9 @@ tgva/
 │   └── events.ts         Announced events (empty until the team adds one)
 ├── lib/                  Map projection, site URL, hooks (focus trap, scroll lock…)
 ├── public/               Images, logos, web-encoded videos and captions
-└── docs/                 PRODUCT.md and DESIGN.md
+├── tests/smoke/          Playwright smoke tests (see Deployment)
+├── .github/workflows/    CI, the rules check and the live check
+└── docs/                 PRODUCT.md, DESIGN.md and AUTOMATION.md
 ```
 
 ## Editing content
@@ -145,8 +150,23 @@ site follows. The full system (typography, spacing, radii, components) is in
 
 The site is on **Vercel**, connected to this repository.
 
-- A push to `main` builds and deploys to production at <https://tgva.vercel.app>.
-- Every other branch gets its own preview URL.
+Every change reaches `main` through a pull request. The full design is in
+[`docs/AUTOMATION.md`](docs/AUTOMATION.md).
+
+1. Work on a branch and run `npm run verify` before pushing.
+2. Open a pull request. Vercel builds a preview URL for it.
+3. Two required checks run. `verify` runs the same `npm run verify` in CI. `rules` fails if the
+   pull request touches a rule path, such as `.github/`, `tests/`, `scripts/` or `package.json`
+   (the full list is in `docs/AUTOMATION.md`).
+4. When both checks pass, GitHub auto-merges the pull request by rebase. A pull request that
+   touches a rule path waits for the owner instead.
+5. Vercel builds production from `main`. Its Deployment Checks hold <https://tgva.vercel.app>
+   until `verify` passes on that commit.
+6. The `live-check` workflow then runs the smoke tests against the live site. It also runs every
+   Monday. A failure opens an issue.
+
+**Something broke in production.** Fix or revert it through a pull request. If the site must come
+back at once, use Vercel's Instant Rollback. On Hobby it can only return to the previous deployment.
 
 **Domain.** When the site gets its own domain, set `NEXT_PUBLIC_SITE_URL` in Vercel:
 
