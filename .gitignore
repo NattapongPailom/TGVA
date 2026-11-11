@@ -50,3 +50,9 @@ next-env.d.ts
 # small (7.5 MB all told) and a clone or a deploy without them shows a broken
 # player, so they are tracked. Captions are plain text and always tracked.
 !/public/video/*.mp4
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

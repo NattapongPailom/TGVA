@@ -1,0 +1,94 @@
+# The smoke tests, run against the public site once a production deployment is
+# live, and weekly in case something outside the repository broke it. A failure
+# opens an issue. No secrets: it only visits the public URL. See
+# docs/AUTOMATION.md.
+#
+# Vercel sends repository_dispatch events, which run this file as it is on main.
+name: Live check
+
+on:
+  repository_dispatch:
+    types:
+      # Built, past the Deployment Checks, and on the domain.
+      - vercel.deployment.success
+      # An Instant Rollback or a manual promotion.
+      - vercel.deployment.promoted
+  schedule:
+    - cron: "17 2 * * 1" # Mondays, 09:17 in Bangkok
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-check
+  cancel-in-progress: true
+
+env:
+  BASE_URL: https://tgva.vercel.app
+
+jobs:
+  live-check:
+    # Preview deployments send the same events; only production is checked.
+    if: github.event_name != 'repository_dispatch' || github.event.client_payload.environment == 'production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      # The tests of the commit that is live, so they expect what it shipped.
+      # The weekly run tests main.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.client_payload.git.sha || github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium webkit
+
+      - run: npm run test:smoke
+
+      - name: Keep the test report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      - name: Open an issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHA: ${{ github.event.client_payload.git.sha || github.sha }}
+          TRIGGER: ${{ github.event.action || github.event_name }}
+        run: |
+          title="Live check failed on $BASE_URL"
+          body=$(printf '%s\n' \
+            "The smoke tests failed against $BASE_URL." \
+            "" \
+            "- Commit: $SHA" \
+            "- Trigger: $TRIGGER" \
+            "- Run and report: $RUN" \
+            "" \
+            "Fix or revert through a pull request. If the site is down now, Vercel's Instant Rollback restores the previous deployment.")
+
+          # One open issue at a time; a repeat failure is added to it.
+          open=$(gh issue list --repo "$REPO" --state open --search "\"$title\" in:title" \
+            --json number --jq '.[0].number // empty')
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --repo "$REPO" --body "$body"
+          else
+            gh issue create --repo "$REPO" --title "$title" --body "$body"
+          fi
