@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { footerColumns, footerNote, social } from "@/content/site";
+import { photoCredits } from "@/content/fleet";
+import { footerColumns, footerNote, photoCreditsCopy, social } from "@/content/site";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 
 /**
@@ -96,6 +97,29 @@ export function SiteFooter({ sticky = true }: { sticky?: boolean }) {
           <p className="max-w-[62ch] text-pretty">{footerNote}</p>
           <p>© {new Date().getFullYear()} Thai Airways Virtual</p>
         </div>
+
+        {/* Closed by default: the credits are owed, not the point of the page,
+            and a closed fold keeps the stuck footer its usual height. */}
+        {photoCredits.length > 0 && (
+          <details className="tgva-credits mt-5 text-[14px] leading-relaxed text-cream/70">
+            <summary>{photoCreditsCopy.title}</summary>
+            <p className="mt-3 max-w-[62ch] text-pretty">{photoCreditsCopy.intro}</p>
+            <ul className="mt-3 flex flex-col gap-1.5">
+              {photoCredits.map(({ name, credit }) => (
+                <li key={name}>
+                  {name}:{" "}
+                  <a href={credit.source} target="_blank" rel="noopener noreferrer">
+                    photograph
+                  </a>{" "}
+                  by {credit.author},{" "}
+                  <a href={credit.licenseUrl} target="_blank" rel="noopener noreferrer">
+                    {credit.license}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
       </div>
     </footer>
   );

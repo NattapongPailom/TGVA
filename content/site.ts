@@ -318,6 +318,18 @@ export const footerColumns = [
   },
 ];
 
+/**
+ * The footer's credit for the aircraft photographs. The list itself is read
+ * off content/fleet.ts, so a credited image added there is credited here.
+ * Creative Commons asks for the changes to be named, and a ShareAlike licence
+ * for the adapted image to be offered on the same terms; this says both.
+ */
+export const photoCreditsCopy = {
+  title: "Photo credits",
+  intro:
+    "These aircraft photographs come from Wikimedia Commons. Each was cut out of its background and its colour lifted, and the adapted image is shared under the same licence as the original.",
+};
+
 /** A virtual airline has to say so plainly. */
 export const footerNote =
   "Thai Airways Virtual is a non-profit flight simulation community. It is not affiliated with Thai Airways International Public Company Limited.";
