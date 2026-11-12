@@ -5,8 +5,8 @@ works inside that. Agreed with the owner on 11 Nov 2026. This file is the source
 of truth for every Claude surface (Claude Code in VS Code, the Claude desktop
 app); `CLAUDE.md` points here.
 
-Status: **Phase 1 built in its bootstrap pull request; waiting for the owner's
-merge and clicks.**
+Status: **Phase 1 done on 12 Nov 2026** (pull requests #1 to #4). Phase 2 is
+next.
 
 ## Principles
 
@@ -129,6 +129,10 @@ the owner's approval to run workflows.
 
 ### Owner's clicks after the bootstrap merge
 
+Done on 12 Nov 2026. The ruleset was read back through the GitHub API: it
+targets the default branch and requires `verify` and `rules`, and the bypass is
+repository admin, for pull requests only.
+
 GitHub, Settings:
 - General: allow auto-merge; allow rebase merging only; delete head branches.
 - Rules: ruleset on `main` requiring a pull request, required checks `verify`
@@ -141,10 +145,25 @@ Vercel, Settings, Build and Deployment, Deployment Checks:
 - Watch one deploy and confirm `tgva.vercel.app` waits for the checks. If it does
   not on Hobby, record that here; branch protection still gates `main`.
 
+It does on Hobby. For `b08d00a` and `fa087bf`, Vercel reported "Waiting for
+checks to complete" until `verify` passed on `main`, then went live about three
+seconds later.
+
+Vercel sends a `repository_dispatch` event for every deployment. The live check
+skips previews. A production deploy sends two events a second apart,
+`vercel.deployment.success` and `vercel.deployment.promoted`. The workflow's
+concurrency group cancels the first, so one live check runs and one cancelled
+run is listed per deploy.
+
 ### Done when
 
 A one-line change under `app/` goes from pull request to live with no clicks, and
 a change to `tests/` stops and waits.
+
+Met on 12 Nov 2026. #3, a comment in `app/robots.ts`, auto-merged by rebase,
+waited for `verify`, went live, and started the live check, which passed. #4, a
+comment in `tests/smoke/meta.spec.ts`, passed `verify`, failed `rules`, and
+waited until the owner merged it with the bypass.
 
 ## Phase 2: wiring for Claude
 
