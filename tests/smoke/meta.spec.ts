@@ -35,6 +35,8 @@ test("robots.txt allows crawling and names the sitemap", async ({ request }) => 
 test("sitemap.xml lists both pages", async ({ request }) => {
   const response = await request.get("/sitemap.xml");
   expect(response.ok()).toBe(true);
+  /* Only the paths are compared: the origin is siteUrl, which differs between
+     a local build, a preview and production. */
   const locs = [...(await response.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map(
     ([, loc]) => new URL(loc).pathname,
   );
