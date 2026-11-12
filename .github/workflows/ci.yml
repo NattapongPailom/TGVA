@@ -22,6 +22,14 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Playwright's own image, with the browsers and their system libraries
+    # already in it. Installing them with `playwright install --with-deps`
+    # fetched 185 packages from Ubuntu's mirrors, which the Ubuntu 26.04 runner
+    # could not resolve; the step hung until the job timed out. The version must
+    # match @playwright/test in package-lock.json, or the tests stop at once
+    # saying the browsers are missing.
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.0-noble@sha256:9beb546099e11f52d62e505537914870e01a67e0e6b00ae41da4775324e73dbe
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -33,8 +41,6 @@ jobs:
           cache: npm
 
       - run: npm ci
-
-      - run: npx playwright install --with-deps chromium webkit
 
       - run: npm run verify
 
