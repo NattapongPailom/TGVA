@@ -79,7 +79,11 @@ npm run dev      # http://localhost:3000
 | `npm run lint` | Runs ESLint. |
 | `npm run typecheck` | Generates the route types and runs the TypeScript compiler. |
 | `npm run test:smoke` | Runs the smoke tests in `tests/smoke/` against a production build. Run `npx playwright install chromium webkit` once first. Set `BASE_URL` to test a deployed site instead. |
-| `npm run verify` | Lint, typecheck, build and smoke tests: the same check CI runs. Run it before every push. |
+| `npm run check:content` | Checks the rules `content/` states about itself: image sizes, files in `public/`, aircraft codes, coordinates, event dates. Offline. |
+| `npm run check:links` | Asks every outside link in `content/` whether it still works, including whether the Discord invite has expired and the form still takes responses. Needs the network. |
+| `npm run release:status` | Shows the open pull requests, whether `main` passed `verify` and went live, and the last live check. Needs `gh` logged in. |
+| `npm run test:hooks` | Tests the command guard in `.claude/hooks/`. |
+| `npm run verify` | Lint, typecheck, `check:content`, `test:hooks`, build and smoke tests: the same check CI runs. Run it before every push. |
 
 ## Project structure
 
@@ -103,8 +107,11 @@ tgva/
 │   └── events.ts         Announced events (empty until the team adds one)
 ├── lib/                  Map projection, site URL, hooks (focus trap, scroll lock…)
 ├── public/               Images, logos, web-encoded videos and captions
+├── scripts/              check:content, check:links and release:status
 ├── tests/smoke/          Playwright smoke tests (see Deployment)
+├── tests/hooks/          Tests for the command guard
 ├── .github/workflows/    CI, the rules check and the live check
+├── .claude/              Claude Code settings and the command guard (CLAUDE.md has the rules)
 └── docs/                 PRODUCT.md, DESIGN.md and AUTOMATION.md
 ```
 
