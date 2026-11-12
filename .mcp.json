@@ -1,12 +1,26 @@
 {
   "mcpServers": {
+    "tgva": {
+      "command": "npx",
+      "args": [
+        "tsx",
+        "scripts/mcp-server.ts"
+      ]
+    },
     "next-devtools": {
       "command": "npx",
-      "args": ["-y", "next-devtools-mcp@0.4.0"]
+      "args": [
+        "-y",
+        "next-devtools-mcp@0.4.0"
+      ]
     },
     "playwright": {
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@0.0.85", "--isolated"]
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.85",
+        "--isolated"
+      ]
     },
     "vercel": {
       "type": "http",
