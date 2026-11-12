@@ -192,9 +192,11 @@ As built:
   so the connection reaches this project only and does not offer
   `deploy_to_vercel` at all.
 - `.claude/settings.json` allows the repository scripts, three read-only
-  `next-devtools` tools and ten read-only Vercel tools by name. Every other
+  `next-devtools` tools and nine read-only Vercel tools by name. Every other
   Vercel tool asks first; the deploy tools are denied. `.env` files are denied
-  to Read and Edit.
+  to Read and Edit. The project-scoped connection does not offer
+  `get_deployment_build_logs` (checked 13 Nov 2026), so it is not on the list;
+  `list_deployment_events` returns a deployment's build output instead.
 - `.claude/hooks/guard-commands.mjs` blocks, for Git: force pushes in every
   form, `--mirror`, `--all`, `--delete`, `--prune`, any push that reaches
   `main`, and a bare push from `main`. For `gh`: `pr merge --admin`, `api`
