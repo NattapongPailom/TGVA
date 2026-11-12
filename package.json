@@ -11,8 +11,12 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
+    "check:content": "tsx scripts/check-content.ts",
+    "check:links": "tsx scripts/check-links.ts",
+    "release:status": "tsx scripts/release-status.ts",
+    "test:hooks": "node --test 'tests/hooks/*.test.mjs'",
     "test:smoke": "playwright test",
-    "verify": "npm run lint && npm run typecheck && npm run build && npm run test:smoke"
+    "verify": "npm run lint && npm run typecheck && npm run check:content && npm run test:hooks && npm run build && npm run test:smoke"
   },
   "dependencies": {
     "next": "^16.4.3",
@@ -28,6 +32,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.3",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

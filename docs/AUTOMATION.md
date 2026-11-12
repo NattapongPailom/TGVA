@@ -5,8 +5,8 @@ works inside that. Agreed with the owner on 11 Nov 2026. This file is the source
 of truth for every Claude surface (Claude Code in VS Code, the Claude desktop
 app); `CLAUDE.md` points here.
 
-Status: **Phase 1 done on 12 Nov 2026** (pull requests #1 to #4). Phase 2 is
-next.
+Status: **Phase 1 done on 12 Nov 2026** (pull requests #1 to #4). **Phase 2
+built in its pull request; waiting for the owner's merge and sign-in.**
 
 ## Principles
 
@@ -67,8 +67,14 @@ the workflow on `main` and never checks out pull-request code.
 GitHub cannot tell Claude from the owner: in Claude Code, Claude uses the owner's
 Git login. "Waits for the owner" is therefore enforced in two places: the red
 `rules` check, which only a ruleset bypass can override, and a Claude Code hook
-(Phase 2) that blocks bypass commands such as `gh pr merge --admin` and pushes to
-`main`. Until Phase 2, Claude simply must not use them.
+(Phase 2, `.claude/hooks/guard-commands.mjs`) that blocks bypass commands such
+as `gh pr merge --admin` and pushes to `main`.
+
+The hook is a guard, not a wall. It reads each Bash command the way the shell
+would split it, but a program Claude writes and then runs, which calls GitHub
+itself, is not a command it can see. What holds regardless: the ruleset blocks
+every direct push to `main`, for the owner too. What rests on the hook and on
+`CLAUDE.md`: an admin's bypass merge, and admin writes through the API.
 
 ## Phase 1: the net
 
@@ -167,6 +173,8 @@ waited until the owner merged it with the bypass.
 
 ## Phase 2: wiring for Claude
 
+The plan:
+
 - `.mcp.json`: `next-devtools` (local errors and console), `playwright`
   (isolated profile), `vercel` (official, OAuth).
 - `.claude/settings.json`: allow the read-only Vercel tools and the repo scripts;
@@ -176,6 +184,56 @@ waited until the owner merged it with the bypass.
   not expand `@AGENTS.md`), keeping the import line for Claude Code.
 - Scripts: `check:content`, `check:links`, `release:status`.
 - Dependency updates are done in a session, not by Dependabot pull requests.
+
+As built:
+
+- `.mcp.json` pins `next-devtools-mcp@0.4.0` and `@playwright/mcp@0.0.85`
+  (`--isolated`: the browser profile lives in memory and is thrown away). Vercel
+  is the project-scoped endpoint, `https://mcp.vercel.com/nattapongpailom/tgva`,
+  so the connection reaches this project only and does not offer
+  `deploy_to_vercel` at all.
+- `.claude/settings.json` allows the repository scripts, three read-only
+  `next-devtools` tools and ten read-only Vercel tools by name. Every other
+  Vercel tool asks first; the deploy tools are denied. `.env` files are denied
+  to Read and Edit.
+- `.claude/hooks/guard-commands.mjs` blocks, for Git: force pushes in every
+  form, `--mirror`, `--all`, `--delete`, `--prune`, any push that reaches
+  `main`, and a bare push from `main`. For `gh`: `pr merge --admin`, `api`
+  writes (a method other than GET, fields, a GraphQL mutation), `repo edit`,
+  `delete`, `rename` and `archive`, `workflow disable`, secret and variable
+  writes, and `auth token`. For Vercel: everything except `ls`, `inspect`,
+  `logs`, `whoami`, `help` and the version. It sees through `&&`, `;`, pipes,
+  subshells, `$( )`, backticks, `bash -c`, `eval`, `env`, `sudo`, `npx` and a
+  preceding `cd` or `git -C`, and skips heredoc bodies so a commit message may
+  mention a blocked command. What it cannot parse, it blocks if Git, `gh` or
+  Vercel is involved; if it fails, it does the same.
+- `tests/hooks/guard-commands.test.mjs` holds the cases that must be blocked
+  and those that must not, which matter as much: a guard that blocks ordinary
+  work gets switched off. `npm run test:hooks` runs it, inside `verify`.
+- `npm run check:content` checks the rules `content/` states in its own
+  comments: each image's width and height are its real size, every file the
+  content names is in `public/`, every timetable aircraft code names a fleet
+  type, coordinates are in range, IATA codes are unique, an emphasis is part of
+  its title, an event's printed date is the day it starts, the membership QR
+  code encodes the current form, links are https, and nothing reads like a
+  placeholder. Offline, so it runs inside `verify`.
+- `npm run check:links` asks every outside address in `content/`. A Discord
+  invite is checked with Discord's invite lookup, which reports an expired one;
+  the Google Form fails if it stops taking responses. It needs the network, so
+  it is not part of `verify`.
+- `npm run release:status` prints the checkout's branch, the open pull requests
+  and their checks, `verify` and Vercel's status on `main`, and the last live
+  check. Read-only.
+- The scripts run with `tsx`, a dev dependency, because `content/` imports
+  through the `@/` path alias that plain Node does not resolve.
+
+### Owner's steps after the merge
+
+- In Claude Code, run `/mcp` and sign in to `vercel` with the Vercel account
+  that owns `tgva`. Approve the three servers when Claude Code first asks.
+- The hook, the permissions and the MCP servers are Claude Code settings. A
+  Claude surface that does not load `.claude/settings.json` has `CLAUDE.md`
+  only, and no hook to stop it.
 
 ## Phase 3: `tgva` server and skills
 
