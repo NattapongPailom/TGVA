@@ -4696,6 +4696,25 @@ select:disabled,
     color: rgba(247, 243, 238, 0.35);
   }
 
+  /* The photo credits: fine print that opens, so it keeps the native marker
+     and underlined links rather than the columns' headline treatment. */
+  .tgva-credits summary {
+    width: fit-content;
+    cursor: pointer;
+    transition: color 0.3s var(--ease-out-soft);
+  }
+
+  .tgva-credits summary:hover,
+  .tgva-credits a:hover {
+    color: var(--color-gold);
+  }
+
+  .tgva-credits a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.3s var(--ease-out-soft);
+  }
+
   /* Where the browser supports animating a disclosure, it opens and closes
      rather than snapping. Everywhere else it simply snaps, which is the
      behaviour the element has always had. */
