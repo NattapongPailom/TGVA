@@ -5,8 +5,7 @@ works inside that. Agreed with the owner on 11 Nov 2026. This file is the source
 of truth for every Claude surface (Claude Code in VS Code, the Claude desktop
 app); `CLAUDE.md` points here.
 
-Status: **Phases 1 and 2 done on 12 Nov 2026** (pull requests #1 to #7).
-**Phase 3 built in its pull request; waiting for the owner's merge.**
+Status: **Phases 1, 2 and 3 done on 12 Nov 2026** (pull requests #1 to #8).
 
 ## Principles
 
@@ -277,10 +276,17 @@ As built:
   the checks), `tgva-verify` (which check answers which question, reading a
   failure) and `tgva-ship` (the release path step by step, and where it stops
   for the owner).
-- Registration: `.mcp.json` gets a `tgva` entry and `.claude/settings.json`
+- Registration: `.mcp.json` has a `tgva` entry and `.claude/settings.json`
   allows its tools. Claude Code's auto mode would not let Claude change its own
-  permissions, so the owner makes those two edits. The desktop app's entry is
-  added on this Mac once this is merged, pointing at this checkout.
+  permissions, so the owner made those two edits (#8).
+- The desktop app starts the same server from
+  `~/Library/Application Support/Claude/claude_desktop_config.json` on the
+  owner's Mac. The app does not pass a shell's environment, so the entry names
+  Node by its full path (`~/.nvm/versions/node/v24.13.0/bin/node`), runs
+  `node_modules/tsx/dist/cli.mjs`, and sets `PATH` to Node's folder plus
+  Homebrew's, for `gh`. After a Node upgrade, the entry's two Node paths change
+  with it. Tested on 12 Nov 2026 by starting it from `/` with only that
+  environment: five tools listed, `content_check` and `release_status` passed.
 
 ## Later
 
