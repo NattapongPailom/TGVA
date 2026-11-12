@@ -115,6 +115,14 @@ Found after the bootstrap merge:
   `@playwright/test` means changing the image tag and digest in both workflows
   in the same pull request. The live check's issue step runs in a job of its
   own on the plain runner, because the image has no `gh`.
+- Linux WebKit plays video through GStreamer, and on a runner with no screen or
+  GPU the home page stopped answering as soon as a video began to decode.
+  Blocking the two videos stopped it, with or without reduced motion; turning
+  off GStreamer's hardware decoder or its audio output did not. So on Linux,
+  and in WebKit only, the smoke tests do not fetch the videos and the posters
+  stand in. WebKit on a Mac still runs them with the videos, and Chromium
+  fetches them, though Playwright's Chromium cannot decode H.264, so no CI
+  browser plays them.
 
 Fork pull requests get no secrets (there are none), never auto-merge, and need
 the owner's approval to run workflows.
