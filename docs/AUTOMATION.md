@@ -150,10 +150,10 @@ checks to complete" until `verify` passed on `main`, then went live about three
 seconds later.
 
 Vercel sends a `repository_dispatch` event for every deployment. The live check
-skips previews. A production deploy sends two events a second apart,
-`vercel.deployment.success` and `vercel.deployment.promoted`. The workflow's
-concurrency group cancels the first, so one live check runs and one cancelled
-run is listed per deploy.
+skips previews. A production deploy sends two events within a second,
+`vercel.deployment.success` and `vercel.deployment.promoted`, in either order.
+The workflow's concurrency group cancels whichever started first, so one live
+check runs and one cancelled run is listed per deploy.
 
 ### Done when
 
