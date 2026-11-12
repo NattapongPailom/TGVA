@@ -60,9 +60,14 @@ why. Do not look for another way to do the same thing.
 
 ## Tools
 
-- `.mcp.json` sets up three MCP servers: `next-devtools` (the dev server's
-  errors and logs), `playwright` (a browser with a throwaway profile) and
-  `vercel` (this project only, read-only tools allowed, deploy tools denied).
+- The `tgva` MCP server runs the repository's checks as tools:
+  `content_check`, `links_check`, `preflight` (`npm run verify`),
+  `verify_deployment` and `release_status`. Same scripts, same results.
+- The skills in `.claude/skills/`: `tgva-content` for changing what the site
+  says, `tgva-verify` for checking it, `tgva-ship` for releasing a change.
+- `.mcp.json` also sets up `next-devtools` (the dev server's errors and logs),
+  `playwright` (a browser with a throwaway profile) and `vercel` (this project
+  only, read-only tools allowed, deploy tools denied).
 - `.claude/settings.json` allows the repository scripts and the read-only
   Vercel tools, and denies `.env` files, force pushes, bypass merges and deploys.
 

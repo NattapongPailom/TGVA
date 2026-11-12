@@ -5,8 +5,8 @@ works inside that. Agreed with the owner on 11 Nov 2026. This file is the source
 of truth for every Claude surface (Claude Code in VS Code, the Claude desktop
 app); `CLAUDE.md` points here.
 
-Status: **Phase 1 done on 12 Nov 2026** (pull requests #1 to #4). **Phase 2
-built in its pull request; waiting for the owner's merge and sign-in.**
+Status: **Phases 1 and 2 done on 12 Nov 2026** (pull requests #1 to #7).
+**Phase 3 built in its pull request; waiting for the owner's merge.**
 
 ## Principles
 
@@ -237,12 +237,50 @@ As built:
 
 ## Phase 3: `tgva` server and skills
 
+The plan:
+
 - Local MCP server with five tools wrapping the scripts: `content_check`,
   `links_check`, `preflight`, `verify_deployment`, `release_status`. Registered
   in `.mcp.json` and in the desktop app, so both surfaces run the same checks.
 - Skills `tgva-content`, `tgva-verify`, `tgva-ship`. Open decision: the repo is
   now public, so skills in `.claude/skills/` would be public too. If they should
   stay private, they go in `~/.claude/skills/` or the owner's Claude account.
+
+Decided on 12 Nov 2026: the skills live in `.claude/skills/`. They hold only
+process steps already public in `CLAUDE.md` and this file, and there they are
+versioned, and every change to them waits for the owner.
+
+As built:
+
+- `scripts/mcp-server.ts`, started with `tsx` over stdio, on the official MCP
+  SDK. Each tool runs one npm script and returns its output; a failing check is
+  an error result. All five are marked read-only.
+
+  | Tool | Script |
+  |---|---|
+  | `content_check` | `npm run check:content` |
+  | `links_check` | `npm run check:links` |
+  | `preflight` | `npm run verify` |
+  | `verify_deployment` | `npm run verify:deployment [url]` |
+  | `release_status` | `npm run release:status` |
+
+- `npm run verify:deployment` is new: the smoke tests against a deployed copy,
+  production by default. It accepts only this site's addresses (production,
+  `NEXT_PUBLIC_SITE_URL`, `tgva-…-nattapongpailom.vercel.app` previews).
+  Previews sit behind Vercel Authentication, which redirects to a login; it
+  says so and stops rather than run every test against a login page.
+- `tests/mcp/tgva-server.test.mjs` starts the server as a client would, checks
+  the five tools, runs `content_check`, and checks that `verify_deployment`
+  refuses another site. `npm run test:mcp`, inside `verify`. It never calls
+  `preflight`, which would run `verify` from inside `verify`.
+- The skills: `tgva-content` (where each kind of content lives, the truth rule,
+  the checks), `tgva-verify` (which check answers which question, reading a
+  failure) and `tgva-ship` (the release path step by step, and where it stops
+  for the owner).
+- Registration: `.mcp.json` gets a `tgva` entry and `.claude/settings.json`
+  allows its tools. Claude Code's auto mode would not let Claude change its own
+  permissions, so the owner makes those two edits. The desktop app's entry is
+  added on this Mac once this is merged, pointing at this checkout.
 
 ## Later
 
