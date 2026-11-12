@@ -147,6 +147,9 @@ export const team: {
     role: "Chief Operating Officer",
     name: "IFTH-Prichachan",
     blurb: "Runs the airline day to day and keeps operations moving.",
+    /* The owner's photo, cropped to the pass's passport shape; the original
+       is in _source-media/staff-originals. */
+    photo: "/images/staff/coo.jpg",
     links: {},
   },
   {
