@@ -3,6 +3,10 @@ import { test as base, expect, type Page, type TestInfo } from "@playwright/test
 /** The two pages the site has. */
 export const PAGES = ["/", "/events"] as const;
 
+/** Where the videos are skipped; see linuxWebkitNoVideo below. */
+const VIDEO = /\.mp4(\?|$)/;
+const skipsVideo = (browserName: string) => browserName === "webkit" && process.platform === "linux";
+
 /**
  * The production CSP carries `upgrade-insecure-requests`. Chromium leaves
  * localhost alone; WebKit upgrades it too, so against the local `next start`
@@ -10,7 +14,7 @@ export const PAGES = ["/", "/events"] as const;
  * and in WebKit only, that one directive is taken out of the response. The rest
  * of the policy still applies, and the live check runs it in full over HTTPS.
  */
-export const test = base.extend<{ localPlainHttp: void }>({
+export const test = base.extend<{ localPlainHttp: void; linuxWebkitNoVideo: void }>({
   localPlainHttp: [
     async ({ page, browserName, baseURL }, use) => {
       if (browserName === "webkit" && baseURL?.startsWith("http://localhost")) {
@@ -27,6 +31,21 @@ export const test = base.extend<{ localPlainHttp: void }>({
     },
     { auto: true },
   ],
+
+  /* Linux WebKit, the iPhone stand-in in CI and the live check, plays video
+     through GStreamer, and on a runner with no screen or GPU the page stops
+     answering as soon as a video starts to decode. Safari on an iPhone or a
+     Mac decodes with Apple's media stack and is unaffected; WebKit on a Mac
+     runs these tests with the videos. So on Linux, and in WebKit only, the
+     videos are not fetched and their posters stand in. Chromium still fetches
+     them. */
+  linuxWebkitNoVideo: [
+    async ({ page, browserName }, use) => {
+      if (skipsVideo(browserName)) await page.route(VIDEO, (route) => route.abort("aborted"));
+      await use();
+    },
+    { auto: true },
+  ],
 });
 
 export { expect };
@@ -39,6 +58,7 @@ export { expect };
  */
 export async function watchForProblems(page: Page) {
   const problems: string[] = [];
+  const videoBlocked = skipsVideo(page.context().browser()?.browserType().name() ?? "");
 
   await page.addInitScript(() => {
     document.addEventListener("securitypolicyviolation", (event) => {
@@ -56,6 +76,8 @@ export async function watchForProblems(page: Page) {
        wants, and a navigation away cancels whatever was still loading. Neither
        is a fault. */
     if (/abort|cancel/i.test(reason)) return;
+    // The videos linuxWebkitNoVideo turns away on purpose.
+    if (videoBlocked && VIDEO.test(request.url())) return;
     problems.push(`request failed: ${request.url()} (${reason})`);
   });
   page.on("response", (response) => {
