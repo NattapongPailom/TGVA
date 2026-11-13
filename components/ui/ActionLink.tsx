@@ -164,7 +164,17 @@ export function ActionLink({
 
     const wait = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : LAUNCH_MS;
     window.setTimeout(() => {
-      if (!window.open(href, "_blank", "noopener,noreferrer")) window.location.href = href;
+      // Not window.open(href, "_blank", "noopener"): with `noopener` it returns
+      // null even when the tab opens, so a blocked tab cannot be told from an
+      // opened one, and this page navigated away as well. A blank tab is opened
+      // instead, cut off from this page, and only then sent on.
+      const tab = window.open("", "_blank");
+      if (tab) {
+        tab.opener = null;
+        tab.location.href = href;
+      } else {
+        window.location.href = href;
+      }
       setLaunching(false);
     }, wait);
   };

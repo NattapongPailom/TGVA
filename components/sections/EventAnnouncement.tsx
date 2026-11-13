@@ -27,11 +27,20 @@ type Memory = { seen: string[]; quietUntil: number };
 
 const BLANK: Memory = { seen: [], quietUntil: 0 };
 
+/* Storage is the visitor's to edit, so what comes back is checked field by
+   field: a `seen` that is not a list of strings would throw on `.includes` and
+   take the announcement down with it. */
 function readMemory(): Memory {
   try {
-    return { ...BLANK, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") };
+    const stored: unknown = JSON.parse(localStorage.getItem(KEY) ?? "{}");
+    if (!stored || typeof stored !== "object") return { ...BLANK, seen: [] };
+    const { seen, quietUntil } = stored as Record<string, unknown>;
+    return {
+      seen: Array.isArray(seen) ? seen.filter((id): id is string => typeof id === "string") : [],
+      quietUntil: typeof quietUntil === "number" && Number.isFinite(quietUntil) ? quietUntil : 0,
+    };
   } catch {
-    return BLANK;
+    return { ...BLANK, seen: [] };
   }
 }
 
