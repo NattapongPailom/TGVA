@@ -100,7 +100,9 @@ for (const [file, contentModule] of modules) {
         } catch {
           fail(where, `is not a valid URL: ${value}`);
         }
-        if (url && url.protocol === "http:") fail(where, `uses http, not https: ${value}`);
+        // Only https leaves the site. A `javascript:` or `data:` address in an
+        // href would run in the page, so anything that is not https fails.
+        if (url && url.protocol !== "https:") fail(where, `is not an https address: ${value}`);
       }
       return;
     }
