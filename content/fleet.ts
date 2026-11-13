@@ -23,9 +23,11 @@ export type Aircraft = {
   /**
    * A full-colour side view in the airline's livery, cropped to the airframe.
    * They all face right, nose to the right edge, because that is the way the
-   * livery reads, and every one shows the right-hand side: none is mirrored,
-   * so every title reads the right way round. A type without one
-   * falls back to its drawn silhouette.
+   * livery reads. Most show the right-hand side. The 777-200 and MD-11 are
+   * photographs of the other side, mirrored to face the same way, so their
+   * titles read backwards: the owner preferred them to the right-side
+   * photographs tried on 13 Nov 2026. A type without one falls back to its
+   * drawn silhouette.
    * The untouched originals are in _source-media/fleet-originals.
    */
   image?: AircraftImage;
@@ -70,10 +72,7 @@ const allTypes: Aircraft[] = [
     image: { src: "/images/airbus/airbus-a350-900.png", width: 939, height: 236 } },
 
   { code: "B772", maker: "Boeing", name: "777-200", length: 63.7, height: 18.5,
-    image: { src: "/images/boeing/boeing-777-200.png", width: 2000, height: 570,
-      credit: { author: "N509FZ", license: "CC BY-SA 4.0",
-        source: "https://commons.wikimedia.org/wiki/File:HS-TJR@PEK_(20240515174754).jpg",
-        licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/" } } },
+    image: { src: "/images/boeing/boeing-777-200.png", width: 875, height: 255 } },
   { code: "B77W", maker: "Boeing", name: "777-300ER", length: 73.9, height: 18.6,
     image: { src: "/images/boeing/boeing-777-300er.png", width: 883, height: 217 } },
   { code: "B788", maker: "Boeing", name: "787-8", length: 56.7, height: 16.9,
@@ -101,13 +100,8 @@ const allTypes: Aircraft[] = [
       credit: { author: "Alec Wilson", license: "CC BY-SA 2.0",
         source: "https://commons.wikimedia.org/wiki/File:HS-TGP_(27148850934).jpg",
         licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/" } } },
-  // The MD-11 is in the airline's earlier white-and-magenta colours: the only
-  // right-side photographs of it in the later purple ones are faded prints.
   { code: "MD11", maker: "McDonnell Douglas", name: "MD-11", length: 61.6, height: 17.6, retired: true,
-    image: { src: "/images/history/mcdonnell-douglas-md-11.png", width: 2000, height: 628,
-      credit: { author: "Aero Icarus", license: "CC BY-SA 2.0",
-        source: "https://commons.wikimedia.org/wiki/File:266bb_-_Thai_Airways_International_MD-11;_HS-TME@ZRH;07.11.2003_(6113407256).jpg",
-        licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/" } } },
+    image: { src: "/images/history/mcdonnell-douglas-md-11.png", width: 772, height: 267 } },
 
   // Legacy. Named by THA694 and THA610 and by nothing else on the site. It is
   // the same airframe as the active A321 above, so it carries the same name —
