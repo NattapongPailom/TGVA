@@ -127,8 +127,13 @@ export const story = {
  * `photo` is a path under public/; until one is given the pass shows the
  * person's initials. `links` takes a URL per channel; a channel without one
  * shows its mark as not yet linked rather than linking nowhere.
+ *
+ * Infinite Flight Community is the only channel. Personal Discord and
+ * Instagram accounts were removed at the owner's request of 13 Nov 2026 as too
+ * personal; the airline's own Discord and Instagram stay in the header and
+ * footer.
  */
-export type StaffLinks = Partial<Record<"discord" | "instagram" | "infiniteflight", string>>;
+export type StaffLinks = Partial<Record<"infiniteflight", string>>;
 
 export const team: {
   role: string;

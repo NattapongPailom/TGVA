@@ -16,11 +16,8 @@ export type StaffMember = {
   links?: StaffLinks;
 };
 
-const CHANNELS = [
-  { key: "discord", label: "Discord" },
-  { key: "instagram", label: "Instagram" },
-  { key: "infiniteflight", label: "Infinite Flight Community" },
-] as const;
+/* No personal Discord or Instagram: see StaffLinks in content/site.ts. */
+const CHANNELS = [{ key: "infiniteflight", label: "Infinite Flight Community" }] as const;
 
 /**
  * One member of staff as a boarding pass: the orchid strip, a passport photo,
