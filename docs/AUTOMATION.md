@@ -290,6 +290,28 @@ As built:
   with it. Tested on 12 Nov 2026 by starting it from `/` with only that
   environment: five tools listed, `content_check` and `release_status` passed.
 
+## Subagents
+
+Added on 13 Nov 2026 at the owner's request: three subagents in
+`.claude/agents/`, one per model, each with `effort: high`.
+
+| Agent | Model | Job | Tools |
+|---|---|---|---|
+| `tgva-reviewer` | Opus | Security and correctness review of a diff or the whole site. Changes nothing. | Read, Grep, Glob, Bash |
+| `tgva-builder` | Sonnet | One scoped change, then lint, typecheck and the content checks. Never commits. | Read, Edit, Write, Grep, Glob, Bash |
+| `tgva-scout` | Haiku | Fast lookups with file:line citations. Changes nothing. | Read, Grep, Glob |
+
+How they fit the release path:
+
+- The main session decides, commits, pushes and opens the pull request. A
+  subagent never does: the builder stops at a checked working tree.
+- `.claude/hooks/guard-commands.mjs` and the deny list in
+  `.claude/settings.json` apply to subagents as well, so none of them can
+  merge past a check, force push or deploy.
+- A typical change: the scout finds the files, the builder makes the change,
+  the reviewer reads the diff, the main session runs `npm run verify` and ships.
+- They are in a rule path, so a change to any of them waits for the owner.
+
 ## Later
 
 Analytics for membership-form clicks, a link watch for the Discord invite and

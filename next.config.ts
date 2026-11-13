@@ -65,6 +65,10 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  // No other site's page can embed the images, videos or scripts, which also
+  // keeps hotlinkers off the Hobby plan's bandwidth. Link previews are fetched
+  // by Discord's and other servers, not by a page, so they are unaffected.
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
 ];
 
 /**

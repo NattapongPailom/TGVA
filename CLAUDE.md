@@ -65,6 +65,10 @@ why. Do not look for another way to do the same thing.
   `verify_deployment` and `release_status`. Same scripts, same results.
 - The skills in `.claude/skills/`: `tgva-content` for changing what the site
   says, `tgva-verify` for checking it, `tgva-ship` for releasing a change.
+- The subagents in `.claude/agents/`, each at `effort: high`: `tgva-reviewer`
+  (Opus, read-only security and correctness review), `tgva-builder` (Sonnet,
+  one scoped change, never commits) and `tgva-scout` (Haiku, read-only
+  lookups). The main session commits and ships. See `docs/AUTOMATION.md`.
 - `.mcp.json` also sets up `next-devtools` (the dev server's errors and logs),
   `playwright` (a browser with a throwaway profile) and `vercel` (this project
   only, read-only tools allowed, deploy tools denied).
