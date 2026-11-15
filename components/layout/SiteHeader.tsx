@@ -10,13 +10,14 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { nav, social, membershipFormUrl } from "@/content/site";
+import { nav, navRecruiting, social, membershipFormUrl, team } from "@/content/site";
 import { events } from "@/content/events";
 import { ActionLink } from "@/components/ui/ActionLink";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import { useScrollLock } from "@/lib/use-scroll-lock";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { scrollToHash } from "@/lib/hash-scroll";
+import { hiringSeatId, isHiring } from "@/lib/hiring";
 
 /** Above the hero the bar always shows; hiding it there would serve nothing. */
 const REVEAL_ZONE = 180;
@@ -31,6 +32,27 @@ const KEY_OF = new Map(nav.flatMap((item) => item.sections.map((id) => [id, item
 
 /** Channels the team has given a URL for. The rest wait rather than lead nowhere. */
 const CHANNELS = social.filter((channel) => channel.href);
+
+/** The post that is hiring, if any. While there is one, the bar says so. */
+const HIRING = team.find(isHiring);
+
+/**
+ * Down to the hiring post's pass, with the one gold pulse the Staff block's
+ * own link gives it. Returns false off the home page, where the router takes
+ * the link to /#open-seat instead.
+ */
+function landOnOpenSeat(): boolean {
+  const seat = document.getElementById(hiringSeatId);
+  if (!seat || !scrollToHash(`/#${hiringSeatId}`)) return false;
+  // Still printing in when the scroll lands: wait for it, as the Staff block does.
+  const printing = seat.closest(".tgva-staff-grid.is-armed:not(.is-in)");
+  seat.style.animationDelay = printing ? "1.6s" : "";
+  seat.classList.remove("is-arriving");
+  void seat.offsetWidth;
+  seat.classList.add("is-arriving");
+  seat.addEventListener("animationend", () => seat.classList.remove("is-arriving"), { once: true });
+  return true;
+}
 
 export function SiteHeader() {
   const [hidden, setHidden] = useState(false);
@@ -264,7 +286,10 @@ export function SiteHeader() {
                           active === child.section ? "is-active" : ""
                         }`}
                       >
-                        <b>{child.label}</b>
+                        <b>
+                          {child.label}
+                          {HIRING && child.section === "staff" ? <RecruitTag /> : null}
+                        </b>
                         <small>{child.note}</small>
                         <Arrow />
                       </Link>
@@ -297,6 +322,28 @@ export function SiteHeader() {
           </nav>
 
           <div className="tgva-nav-tools">
+            {HIRING ? (
+              <Link
+                href={`/#${hiringSeatId}`}
+                className="tgva-nav-recruit"
+                aria-label={`${navRecruiting.label}: ${HIRING.role}. ${navRecruiting.cta}`}
+                onClick={(event) => {
+                  if (landOnOpenSeat()) event.preventDefault();
+                }}
+              >
+                <RecruitIcon />
+                <i aria-hidden className="tgva-beacon-dot" />
+                {/* Shown on hover and focus; the link's label already says it. */}
+                <span aria-hidden className="tgva-nav-recruit-card">
+                  <span className="tgva-nav-recruit-label">
+                    <i className="tgva-beacon-dot" />
+                    {navRecruiting.label}
+                  </span>
+                  <b>{HIRING.role}</b>
+                  <small>{navRecruiting.cta} →</small>
+                </span>
+              </Link>
+            ) : null}
             {CHANNELS.map((channel) => (
               <a
                 key={channel.label}
@@ -332,13 +379,14 @@ export function SiteHeader() {
             type="button"
             className="tgva-nav-burger"
             aria-expanded={sheetOpen}
-            aria-label={sheetOpen ? "Close menu" : "Open menu"}
+            aria-label={sheetOpen ? "Close menu" : HIRING ? `Open menu. ${navRecruiting.label}` : "Open menu"}
             onClick={() => setSheetOpen((open) => !open)}
           >
             <span>
               <i />
               <i />
             </span>
+            {HIRING && !sheetOpen ? <b aria-hidden className="tgva-beacon-dot tgva-nav-burger-dot" /> : null}
           </button>
         </div>
 
@@ -365,7 +413,14 @@ export function SiteHeader() {
                           active === child.section ? "is-active" : ""
                         }`}
                       >
-                        {child.label}
+                        {HIRING && child.section === "staff" ? (
+                          <span className="tgva-nav-sheet-tagged">
+                            {child.label}
+                            <RecruitTag />
+                          </span>
+                        ) : (
+                          child.label
+                        )}
                       </Link>
                     ))}
                   </>
@@ -386,6 +441,29 @@ export function SiteHeader() {
 
             <SheetRow index={nav.length}>
               <div className="tgva-nav-sheet-foot">
+                {HIRING ? (
+                  <Link
+                    href={`/#${hiringSeatId}`}
+                    className="tgva-nav-recruit-row"
+                    aria-label={`${navRecruiting.label}: ${HIRING.role}. ${navRecruiting.cta}`}
+                    onClick={(event) => {
+                      setSheetOpen(false);
+                      if (!document.getElementById(hiringSeatId)) return;
+                      // A frame later, once the sheet's scroll lock has lifted.
+                      event.preventDefault();
+                      requestAnimationFrame(() => landOnOpenSeat());
+                    }}
+                  >
+                    <span aria-hidden className="tgva-nav-recruit-label">
+                      <i className="tgva-beacon-dot" />
+                      {navRecruiting.label}
+                    </span>
+                    <b aria-hidden>{HIRING.role}</b>
+                    <span aria-hidden className="tgva-nav-recruit-go">
+                      ↓
+                    </span>
+                  </Link>
+                ) : null}
                 {CHANNELS.length ? (
                   <div className="tgva-nav-sheet-pair">
                     {CHANNELS.map((channel) => (
@@ -441,6 +519,29 @@ function SheetRow({ index, children }: { index: number; children: ReactNode }) {
     <div className="tgva-nav-row" style={{ "--i": index } as CSSProperties}>
       {children}
     </div>
+  );
+}
+
+/** "Now recruiting", small, beside the Staff entry in both menus. */
+function RecruitTag() {
+  return (
+    <span className="tgva-nav-recruit-tag">
+      <i aria-hidden className="tgva-beacon-dot" />
+      {navRecruiting.label}
+    </span>
+  );
+}
+
+/** An ID badge with a plus — the same mark the hiring pass carries. */
+function RecruitIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className="tgva-nav-recruit-icon">
+      <rect x="3.5" y="5" width="13" height="15" rx="2" />
+      <path d="M8 3.5v3M12 3.5v3" />
+      <circle cx="10" cy="11" r="2.2" />
+      <path d="M6.6 16.6c.6-1.6 1.9-2.4 3.4-2.4s2.8.8 3.4 2.4" />
+      <path className="is-plus" d="M19.5 9v6M16.5 12h6" />
+    </svg>
   );
 }
 
