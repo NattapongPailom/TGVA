@@ -53,6 +53,7 @@ export function AircraftPicture({
         width={aircraft.image.width}
         height={aircraft.image.height}
         sizes={sizes}
+        className={aircraft.image.angled ? "is-angled" : undefined}
         style={{ "--tgva-scale": Math.max(aircraft.length, SMALLEST_DRAWN) / longest } as CSSProperties}
       />
     </span>
