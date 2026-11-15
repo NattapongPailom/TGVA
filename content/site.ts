@@ -74,6 +74,11 @@ export const navRecruiting = {
  * Community channels, shown as icons in the bar. A channel with no URL yet is
  * left out rather than linked nowhere — fill in the href and it appears.
  * `short` is the name the phone menu prints when the full one will not fit.
+ *
+ * Discord is not among them: the owner took it off the site on 15 Nov 2026,
+ * because joining it had become too complicated to send people to. Left out
+ * altogether rather than given an empty href, which the footer would still
+ * draw as a channel to come.
  */
 export const social: {
   icon: "discord" | "instagram" | "infiniteflight";
@@ -81,7 +86,6 @@ export const social: {
   short?: string;
   href: string;
 }[] = [
-  { icon: "discord", label: "Discord", href: "https://discord.gg/cV84VuPEc9" },
   { icon: "instagram", label: "Instagram", href: "https://www.instagram.com/if.tgva/" },
   {
     icon: "infiniteflight",
@@ -153,8 +157,7 @@ export const story = {
  *
  * Infinite Flight Community is the only channel. Personal Discord and
  * Instagram accounts were removed at the owner's request of 13 Nov 2026 as too
- * personal; the airline's own Discord and Instagram stay in the header and
- * footer.
+ * personal; the airline's own Instagram stays in the header and footer.
  */
 export type StaffLinks = Partial<Record<"infiniteflight", string>>;
 
@@ -204,18 +207,16 @@ export const staff = {
   eyebrow: "INSIDE TGVA",
   lead: "Meet the",
   word: "STAFF",
-  description:
-    "The people who keep TGVA flying. Our staff lead the airline, set the standards every route is flown to, and welcome each new pilot into the community. Some seats are still open — yours could be next.",
   /** How many passes the block shows before "View all staff". */
   shown: 4,
   /**
-   * The note under the description while a post is hiring, approved by the
-   * owner on 15 Nov 2026. Its heading is the hiring post's role, read off
-   * `team`; "jump" scrolls to that post's pass.
+   * The panel under the heading while a post is hiring. At the owner's request
+   * of 15 Nov 2026 it says three things and no more: the status, the post,
+   * read off `team`, and the link down to its pass. The block's description
+   * and the panel's own paragraph went with the same request.
    */
   hiring: {
-    label: "Now hiring",
-    body: "Ready to look after the people who fly TGVA? Apply for Human Resources Director with the Apply button on its open seat.",
+    label: "Now hiring (HR)",
     jump: "Go to the open seat",
   },
 };
@@ -348,8 +349,8 @@ export const footerColumns = [
     ],
   },
   {
-    /* Discord and Instagram are not listed here: the footer draws them as
-       marks under the columns, where an icon says more than its own name. */
+    /* The channels are not listed here: the footer draws them as marks
+       under the columns, where an icon says more than its own name. */
     title: "Connect",
     links: [
       { href: membershipFormUrl, label: "Become a member" },

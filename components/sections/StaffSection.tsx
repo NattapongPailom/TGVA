@@ -11,7 +11,7 @@ import { isHiring } from "@/lib/hiring";
  * Staff, the third part of Inside TGVA — "the people behind all of it".
  *
  * Its own two columns under the chapters above, on the same 4:6 split: the
- * heading, a line on who the staff are and "View all staff" on the left,
+ * heading, the hiring panel while a post is open, and "View all staff" on the left,
  * holding still on a wide screen while the passes go by on the right. The
  * block shows the first few passes; the full roster is the General
  * Declaration the button opens, which is also where a growing team goes
@@ -45,9 +45,6 @@ export function StaffSection() {
             <b />
             <i />
           </div>
-          <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.75] text-ink-soft text-pretty">
-            {staff.description}
-          </p>
           {hiring ? <StaffHiringNote role={hiring.role} {...staff.hiring} /> : null}
           <div className="mt-7">
             <StaffManifest members={team} edition={edition} />
