@@ -75,6 +75,18 @@ itself, is not a command it can see. What holds regardless: the ruleset blocks
 every direct push to `main`, for the owner too. What rests on the hook and on
 `CLAUDE.md`: an admin's bypass merge, and admin writes through the API.
 
+### When Vercel misses a merge
+
+Vercel builds production from GitHub's push event. On 15 Nov 2026 it never
+received the one for `508cd5d` (#19): `verify` ran and passed, but the commit
+had no Vercel status and no deployment, and production stayed on the commit
+before. `npm run release:status` shows it as `Vercel: no status yet` long
+after a build would have finished; a normal one reports within five minutes.
+
+Two ways out, neither of which deploys from Claude's side: the owner redeploys
+the latest `main` from the Vercel dashboard, or the next pull request to merge
+moves `main` again and Vercel builds it, with everything before it included.
+
 ## Phase 1: the net
 
 One bootstrap pull request, merged by the owner by hand.
