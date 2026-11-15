@@ -62,6 +62,15 @@ export const nav: NavItem[] = [
 ];
 
 /**
+ * The bar's recruiting status, shown while a post in `team` is hiring (see
+ * `applyUrl` there). The post's role is read off `team`; this is the rest.
+ */
+export const navRecruiting = {
+  label: "Now recruiting",
+  cta: "See the open seat",
+};
+
+/**
  * Community channels, shown as icons in the bar. A channel with no URL yet is
  * left out rather than linked nowhere — fill in the href and it appears.
  * `short` is the name the phone menu prints when the full one will not fit.
