@@ -40,8 +40,19 @@ export type Aircraft = {
   legacy?: true;
 };
 
-/** A file under public/, and its intrinsic size in pixels. */
-export type AircraftImage = { src: string; width: number; height: number; credit?: PhotoCredit };
+/**
+ * A file under public/, and its intrinsic size in pixels. `angled` marks a
+ * picture taken from below or at an angle rather than side-on: its wings make
+ * it taller than a profile, so the frame's height cap would shrink it below
+ * its length, and it is let run past that height instead.
+ */
+export type AircraftImage = {
+  src: string;
+  width: number;
+  height: number;
+  credit?: PhotoCredit;
+  angled?: true;
+};
 
 /**
  * Who took a photograph and the licence it is used under. A Creative Commons
@@ -90,11 +101,11 @@ const allTypes: Aircraft[] = [
       credit: { author: "QFSE Media", license: "CC BY-SA 3.0 NZ",
         source: "https://commons.wikimedia.org/wiki/File:01_Thai_Airways_HS-TNC.jpg",
         licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/nz/" } } },
+  // HS-TUF in flight, supplied by the owner on 15 Nov 2026 and cut out of its
+  // sky. It is seen from below, banking, rather than flat side-on like the
+  // rest; the original is in _source-media/fleet-originals/history.
   { code: "A380", maker: "Airbus", name: "A380", length: 72.7, height: 24.1, retired: true,
-    image: { src: "/images/history/airbus-a380.png", width: 2000, height: 664,
-      credit: { author: "Alec Wilson", license: "CC BY-SA 2.0",
-        source: "https://commons.wikimedia.org/wiki/File:HS-TUD_(27782856595).jpg",
-        licenseUrl: "https://creativecommons.org/licenses/by-sa/2.0/" } } },
+    image: { src: "/images/history/airbus-a380.png", width: 1737, height: 633, angled: true } },
   { code: "B744", maker: "Boeing", name: "747-400", length: 70.7, height: 19.4, retired: true,
     image: { src: "/images/history/boeing-747-400.png", width: 2000, height: 573,
       credit: { author: "Alec Wilson", license: "CC BY-SA 2.0",

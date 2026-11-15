@@ -2121,6 +2121,19 @@ select:disabled,
     object-position: right center;
   }
 
+  /* Seen from below, the wings make it taller than a side view; capped, it
+     came out shorter than types it is longer than. It keeps its length and
+     runs a little past the frame's height instead. */
+  .tgva-aircraft-frame img.is-angled {
+    max-height: none;
+  }
+
+  /* ...past it, not by it: the frame keeps its height, so the board does not
+     jump when this type is picked. The overrun is shared top and bottom. */
+  .tgva-aircraft-frame:has(> img.is-angled) {
+    min-height: 0;
+  }
+
   /* ---- the handle ----
      It reads as a thing to take hold of rather than press: a tab moulded into
      the board's edge, chevron pointing the way home and three raised dots
