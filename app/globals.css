@@ -5604,15 +5604,6 @@ select:disabled,
     }
   }
 
-  .tgva-staff-lead {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.625rem;
-    line-height: 1;
-    letter-spacing: -0.02em;
-    color: var(--color-brand-light);
-  }
-
   /* ---- the flap word ---- */
   .tgva-flaps {
     display: flex;

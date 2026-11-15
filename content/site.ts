@@ -205,7 +205,6 @@ export const team: {
 /** The Staff block's own copy, approved by the owner on 5 Nov 2026. */
 export const staff = {
   eyebrow: "INSIDE TGVA",
-  lead: "Meet the",
   word: "STAFF",
   /** How many passes the block shows before "View all staff". */
   shown: 4,
