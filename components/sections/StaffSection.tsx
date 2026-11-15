@@ -35,10 +35,7 @@ export function StaffSection() {
           </p>
         </Reveal>
         <Reveal index={1} className="mt-4">
-          <p aria-hidden className="tgva-staff-lead">
-            {staff.lead}
-          </p>
-          <StaffFlapWord word={staff.word} label={`${staff.lead} ${staff.word.toLowerCase()}`} />
+          <StaffFlapWord word={staff.word} label="Staff" />
         </Reveal>
         <Reveal index={2} className="mt-6">
           <div aria-hidden className="tgva-staff-rule">
