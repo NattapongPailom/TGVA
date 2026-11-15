@@ -4,8 +4,10 @@ import Image from "next/image";
 import { useRef, type CSSProperties, type PointerEvent } from "react";
 import { membershipFormUrl, type StaffLinks } from "@/content/site";
 import { OrchidMark } from "@/components/motion/OrchidMark";
+import { ActionLink } from "@/components/ui/ActionLink";
 import { SocialIcon } from "@/components/ui/SocialIcon";
 import { barcode } from "@/lib/barcode";
+import { hiringSeatId, isHiring } from "@/lib/hiring";
 import { initials } from "@/lib/initials";
 
 export type StaffMember = {
@@ -14,6 +16,7 @@ export type StaffMember = {
   blurb: string;
   photo?: string;
   links?: StaffLinks;
+  applyUrl?: string;
 };
 
 /* No personal Discord or Instagram: see StaffLinks in content/site.ts. */
@@ -22,7 +25,9 @@ const CHANNELS = [{ key: "infiniteflight", label: "Infinite Flight Community" }]
 /**
  * One member of staff as a boarding pass: the orchid strip, a passport photo,
  * the fields, a perforation and a stub. A post with no name is a standby pass
- * whose stub is an APPLY link to the membership form.
+ * whose stub is an APPLY link to the membership form — unless the post is
+ * hiring, when the pass wears the executive strip and a "Now hiring" tag, and
+ * its stub is the one gold button in the grid, leading to the post's own form.
  *
  * The tilt follows a mouse only — a finger has no hover to follow — and is
  * written straight to the element's custom properties rather than through
@@ -32,6 +37,7 @@ const CHANNELS = [{ key: "infiniteflight", label: "Infinite Flight Community" }]
 export function StaffPass({ member, index }: { member: StaffMember; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const open = !member.name;
+  const hiring = isHiring(member);
   const bars = barcode(member.name ?? member.role, 30);
 
   const onMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -57,21 +63,40 @@ export function StaffPass({ member, index }: { member: StaffMember; index: numbe
 
   return (
     <div className="tgva-staff-print" style={{ "--i": index } as CSSProperties}>
-      <div ref={ref} className="tgva-staff-tilt" onPointerMove={onMove} onPointerLeave={onLeave}>
+      <div
+        ref={ref}
+        id={hiring ? hiringSeatId : undefined}
+        className="tgva-staff-tilt"
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+      >
         <article
-          className={`tgva-crewpass ${open ? "is-open" : "is-exec"}`}
-          aria-label={`${member.name ?? "Position open"}, ${member.role}`}
+          className={`tgva-crewpass ${hiring ? "is-hiring" : open ? "is-open" : "is-exec"}`}
+          aria-label={`${member.name ?? (hiring ? "Now hiring" : "Position open")}, ${member.role}`}
         >
           <span aria-hidden className="tgva-crewpass-light" />
           <div className="tgva-crewpass-head">
             <OrchidMark className="size-5.5" />
             <span>TGVA</span>
+            {hiring ? (
+              <span className="tgva-crewpass-tag">
+                <i aria-hidden className="tgva-beacon-dot" />
+                NOW HIRING
+              </span>
+            ) : null}
           </div>
 
           <div className="tgva-crewpass-body">
             <div className="tgva-crewpass-photo" aria-hidden>
               {member.photo ? (
                 <Image src={member.photo} alt="" fill sizes="78px" className="object-cover" />
+              ) : hiring ? (
+                <>
+                  <svg aria-hidden className="tgva-crewpass-frame" viewBox="0 0 78 96" preserveAspectRatio="none">
+                    <rect x="5" y="5" width="68" height="86" rx="9" />
+                  </svg>
+                  <BadgeIcon />
+                </>
               ) : open ? (
                 <SeatIcon />
               ) : (
@@ -100,7 +125,7 @@ export function StaffPass({ member, index }: { member: StaffMember; index: numbe
                 <div>
                   <span className="tgva-crewpass-label">Class</span>
                   <span>
-                    {open ? (
+                    {open && !hiring ? (
                       <span className="tgva-crewpass-chip">STANDBY</span>
                     ) : (
                       <span className="tgva-crewpass-foil">EXECUTIVE</span>
@@ -115,7 +140,17 @@ export function StaffPass({ member, index }: { member: StaffMember; index: numbe
           <div aria-hidden className="tgva-crewpass-perf" />
 
           <div className="tgva-crewpass-stub">
-            {open ? (
+            {hiring ? (
+              <ActionLink
+                href={member.applyUrl!}
+                variant="gold"
+                motion="roll"
+                size="compact"
+                aria-label={`Apply for ${member.role}. Opens the application on Google Forms in a new tab.`}
+              >
+                APPLY NOW
+              </ActionLink>
+            ) : open ? (
               <a className="tgva-crewpass-apply" href={membershipFormUrl} target="_blank" rel="noopener noreferrer">
                 APPLY <ArrowIcon />
               </a>
@@ -174,6 +209,19 @@ export function ArrowIcon() {
   return (
     <svg viewBox="0 0 12 12" aria-hidden className="size-2.5 fill-none stroke-current stroke-[1.6]">
       <path d="M3 9l6-6M4 3h5v5" />
+    </svg>
+  );
+}
+
+/** An ID badge with a plus: a post being filled, where SeatIcon is one standing empty. */
+export function BadgeIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className="tgva-crewpass-badge">
+      <rect x="3.5" y="5" width="13" height="15" rx="2" />
+      <path d="M8 3.5v3M12 3.5v3" />
+      <circle cx="10" cy="11" r="2.2" />
+      <path d="M6.6 16.6c.6-1.6 1.9-2.4 3.4-2.4s2.8.8 3.4 2.4" />
+      <path className="is-plus" d="M19.5 9v6M16.5 12h6" />
     </svg>
   );
 }

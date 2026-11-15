@@ -7,6 +7,7 @@ import { OrchidMark } from "@/components/motion/OrchidMark";
 import { CloseMark } from "@/components/ui/CloseMark";
 import { ArrowIcon, StaffChannels, type StaffMember } from "@/components/sections/StaffPass";
 import { barcode } from "@/lib/barcode";
+import { isHiring } from "@/lib/hiring";
 import { initials } from "@/lib/initials";
 import { membershipQr } from "@/lib/membership-qr";
 import { useFocusTrap } from "@/lib/use-focus-trap";
@@ -108,7 +109,7 @@ export function StaffManifest({ members, edition }: { members: StaffMember[]; ed
 
   /* Names type in one after another: each row spends the budget its name
      needs, plus a short pause before the next one starts. */
-  const names = members.map((member) => member.name ?? "— VACANT —");
+  const names = members.map((member) => member.name ?? (isHiring(member) ? "— HIRING —" : "— VACANT —"));
   const starts = names.map((_, i) => names.slice(0, i).reduce((sum, name) => sum + name.length + 4, 0));
   const rows = members.map((member, i) => {
     const full = names[i];
@@ -224,7 +225,7 @@ export function StaffManifest({ members, edition }: { members: StaffMember[]; ed
                       </thead>
                       <tbody>
                         {rows.map(({ member, full, shown, typing, i }) => (
-                          <tr key={member.role}>
+                          <tr key={member.role} className={isHiring(member) ? "is-hiring" : undefined}>
                             <td className="is-idx">{pad(i + 1)}</td>
                             <td className="is-photo">
                               <span aria-hidden className={`tgva-gd-photo${member.name ? "" : " is-open"}`}>
@@ -241,7 +242,7 @@ export function StaffManifest({ members, edition }: { members: StaffMember[]; ed
                             <td className="is-base">BKK</td>
                             <td className="is-status">
                               <span
-                                className={`tgva-gd-stamp ${member.name ? "is-on" : "is-standby"}`}
+                                className={`tgva-gd-stamp ${member.name ? "is-on" : isHiring(member) ? "is-hiring" : "is-standby"}`}
                                 style={{ "--i": i } as CSSProperties}
                               >
                                 {member.name ? (
@@ -250,6 +251,8 @@ export function StaffManifest({ members, edition }: { members: StaffMember[]; ed
                                     <br />
                                     DUTY
                                   </>
+                                ) : isHiring(member) ? (
+                                  "NOW HIRING"
                                 ) : (
                                   "STANDBY"
                                 )}
@@ -260,13 +263,17 @@ export function StaffManifest({ members, edition }: { members: StaffMember[]; ed
                                 <StaffChannels links={member.links} name={member.name} />
                               ) : (
                                 <a
-                                  className="tgva-crewpass-apply"
-                                  href={membershipFormUrl}
+                                  className={`tgva-crewpass-apply${isHiring(member) ? " is-gold" : ""}`}
+                                  href={member.applyUrl ?? membershipFormUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  aria-label={`Apply for ${member.role}`}
+                                  aria-label={
+                                    isHiring(member)
+                                      ? `Apply for ${member.role}. Opens the application on Google Forms in a new tab.`
+                                      : `Apply for ${member.role}`
+                                  }
                                 >
-                                  APPLY <ArrowIcon />
+                                  {isHiring(member) ? "APPLY NOW" : "APPLY"} <ArrowIcon />
                                 </a>
                               )}
                             </td>

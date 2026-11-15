@@ -130,6 +130,18 @@ if (!/^https:\/\/(docs\.google\.com\/forms\/|forms\.gle\/)/.test(siteModule.memb
   fail("content/site.ts membershipFormUrl", "is not a Google Forms address");
 }
 
+// site.ts: a post that is hiring links to its own form. It must be the form's
+// public address: an editor's `/edit` link sends every visitor to a
+// permission page instead.
+for (const member of siteModule.team) {
+  if (!member.applyUrl) continue;
+  const where = `content/site.ts team "${member.role}" applyUrl`;
+  if (member.name) fail(where, "is set on a post that is filled; only an open post can be hiring");
+  if (!/^https:\/\/(docs\.google\.com\/forms\/d\/e\/[^/]+\/viewform|forms\.gle\/)/.test(member.applyUrl)) {
+    fail(where, `is not a public Google Forms address (…/forms/d/e/…/viewform or forms.gle): ${member.applyUrl}`);
+  }
+}
+
 // lib/membership-qr.ts: the manifest drops its QR code when the two differ.
 if (membershipQr.url !== siteModule.membershipFormUrl) {
   fail(
