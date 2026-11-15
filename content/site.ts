@@ -5,6 +5,15 @@ export const membershipFormUrl =
   "https://docs.google.com/forms/d/e/1FAIpQLSeIGvvaSnKmKiFZMC_Q8-JM5GO4uN0d_YE1qhgiUuEinjqvkA/viewform";
 
 /**
+ * The Human Resources Director application, given by the owner on 15 Nov 2026.
+ * This is the form's public address: the `/edit` one the owner shared opens
+ * only for the form's editors, and every visitor would land on a permission
+ * page.
+ */
+export const hrDirectorFormUrl =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdsdQ384hxu6N3qak1x9cfw2EMyhIegKqG1xOSrFDre4ZV6jg/viewform";
+
+/**
  * The bar's own map of the page.
  *
  * `sections` lists the ids an entry stands for, which is what lets the bar mark
@@ -128,6 +137,11 @@ export const story = {
  * person's initials. `links` takes a URL per channel; a channel without one
  * shows its mark as not yet linked rather than linking nowhere.
  *
+ * `applyUrl` marks an open post that is recruiting through a form of its own.
+ * Its pass and its manifest row read "Now hiring", their Apply leads to that
+ * form, and the Staff block's hiring note names it. An open post without one
+ * stays on standby, and its Apply leads to the membership form.
+ *
  * Infinite Flight Community is the only channel. Personal Discord and
  * Instagram accounts were removed at the owner's request of 13 Nov 2026 as too
  * personal; the airline's own Discord and Instagram stay in the header and
@@ -141,6 +155,7 @@ export const team: {
   blurb: string;
   photo?: string;
   links?: StaffLinks;
+  applyUrl?: string;
 }[] = [
   {
     role: "Chief Executive Officer",
@@ -166,6 +181,7 @@ export const team: {
     role: "Human Resources Director",
     name: null,
     blurb: "Looks after the pilots — joining, records and the people side of the community.",
+    applyUrl: hrDirectorFormUrl,
   },
   {
     role: "Chief Marketing Officer",
@@ -183,6 +199,16 @@ export const staff = {
     "The people who keep TGVA flying. Our staff lead the airline, set the standards every route is flown to, and welcome each new pilot into the community. Some seats are still open — yours could be next.",
   /** How many passes the block shows before "View all staff". */
   shown: 4,
+  /**
+   * The note under the description while a post is hiring, approved by the
+   * owner on 15 Nov 2026. Its heading is the hiring post's role, read off
+   * `team`; "jump" scrolls to that post's pass.
+   */
+  hiring: {
+    label: "Now hiring",
+    body: "Ready to look after the people who fly TGVA? Apply for Human Resources Director with the Apply button on its open seat.",
+    jump: "Go to the open seat",
+  },
 };
 
 /**

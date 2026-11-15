@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { membershipFormUrl } from "@/content/site";
 import { scrollToHash } from "@/lib/hash-scroll";
 import { useState, type ComponentProps, type MouseEvent } from "react";
 
@@ -31,8 +32,9 @@ const PLANE =
  * anyone who cannot see the mark.
  */
 function departureNote(href: string) {
+  if (href === membershipFormUrl) return "opens the membership form on Google Forms in a new tab";
   if (href.includes("docs.google.com/forms") || href.includes("forms.gle"))
-    return "opens the membership form on Google Forms in a new tab";
+    return "opens the application on Google Forms in a new tab";
   return "opens in a new tab";
 }
 

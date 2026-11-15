@@ -3,7 +3,9 @@ import { Reveal } from "@/components/motion/Reveal";
 import { StaffFlapWord } from "@/components/sections/StaffFlapWord";
 import { StaffManifest } from "@/components/sections/StaffManifest";
 import { StaffGrid } from "@/components/sections/StaffGrid";
+import { StaffHiringNote } from "@/components/sections/StaffHiringNote";
 import { StaffPass } from "@/components/sections/StaffPass";
+import { isHiring } from "@/lib/hiring";
 
 /**
  * Staff, the third part of Inside TGVA — "the people behind all of it".
@@ -19,6 +21,10 @@ export function StaffSection() {
   /* The edition is the year the page was built — the year this manifest was
      issued — so it moves on with the next deploy rather than going stale. */
   const edition = new Date().getFullYear();
+
+  /* The note names the first post that is hiring, and only while its pass is
+     among those shown: it points down at that pass, so it needs one to point at. */
+  const hiring = team.slice(0, staff.shown).find(isHiring);
 
   return (
     <section id="staff" aria-labelledby="staff-heading" className="tgva-staff mx-auto mt-28 max-w-[1240px]">
@@ -42,6 +48,7 @@ export function StaffSection() {
           <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.75] text-ink-soft text-pretty">
             {staff.description}
           </p>
+          {hiring ? <StaffHiringNote role={hiring.role} {...staff.hiring} /> : null}
           <div className="mt-7">
             <StaffManifest members={team} edition={edition} />
           </div>
