@@ -6215,92 +6215,120 @@ select:disabled,
     animation: tgva-beacon-dot 2.6s var(--ease-out-soft) infinite;
   }
 
-  /* ---- the hiring note, under the Staff description ---- */
+  /* ---- the hiring panel, under the Staff heading ----
+     Three things and no paragraph, so the panel is drawn as a boarding-pass
+     stub in the passes' own materials: the executive strip's orchid, a gold
+     ring, a perforation with punched notches, and the orchid as a watermark.
+     It sits on the page rather than floating, so it casts no shadow. */
   .tgva-staff-hiring {
-    display: flex;
+    --stub: 5.25rem;
+    position: relative;
+    overflow: hidden;
     max-width: 30rem;
-    align-items: flex-start;
-    gap: 18px;
     margin-top: 1.75rem;
-    padding-block: 1.375rem;
-    border-block: 1px solid rgba(54, 10, 111, 0.15);
+    border-radius: 18px;
+    background: linear-gradient(120deg, var(--color-brand), var(--color-brand-deep));
+    box-shadow: inset 0 0 0 1.5px rgba(216, 166, 87, 0.55);
+    color: var(--color-cream);
+    -webkit-mask:
+      radial-gradient(circle 10px at 0 calc(100% - var(--stub)), #0000 96%, #000 100%),
+      radial-gradient(circle 10px at 100% calc(100% - var(--stub)), #0000 96%, #000 100%);
+    -webkit-mask-composite: source-in;
+    mask:
+      radial-gradient(circle 10px at 0 calc(100% - var(--stub)), #0000 96%, #000 100%) intersect,
+      radial-gradient(circle 10px at 100% calc(100% - var(--stub)), #0000 96%, #000 100%);
   }
 
-  .tgva-staff-hiring-icon {
-    display: grid;
-    flex: none;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 999px;
-    background: rgba(91, 43, 168, 0.08);
-    box-shadow: inset 0 0 0 1px rgba(91, 43, 168, 0.18);
+  .tgva-staff-hiring-mark {
+    position: absolute;
+    top: -2.75rem;
+    right: -2.75rem;
+    width: 10rem;
+    height: 10rem;
+    opacity: 0.12;
+    pointer-events: none;
+    transition:
+      opacity 0.6s var(--ease-out-soft),
+      rotate 0.9s var(--ease-out-soft);
   }
 
-  .tgva-staff-hiring-icon .tgva-crewpass-badge {
-    width: 24px;
-    height: 24px;
+  .tgva-staff-hiring:hover .tgva-staff-hiring-mark,
+  .tgva-staff-hiring:focus-within .tgva-staff-hiring-mark {
+    opacity: 0.2;
+    rotate: -8deg;
   }
 
-  .tgva-staff-hiring-text {
-    min-width: 0;
+  .tgva-staff-hiring-head {
+    position: relative;
+    padding: 1.4rem 1.5rem 1.35rem;
   }
 
+  /* The status, as the passes print it: a gold-ringed tag with its pulse. */
   .tgva-staff-hiring-label {
     --beacon: rgba(216, 166, 87, 0.7);
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
+    padding: 5px 12px 5px 10px;
+    border-radius: 999px;
+    background: rgba(216, 166, 87, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(216, 166, 87, 0.45);
     font-family: var(--font-display);
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--color-gold-deep);
+    color: var(--color-gold);
   }
 
   .tgva-staff-hiring-label .tgva-beacon-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     color: var(--color-gold);
   }
 
   .tgva-staff-hiring-title {
-    margin-top: 8px;
+    margin-top: 0.9rem;
     font-family: var(--font-display);
-    font-size: 22px;
+    font-size: 1.625rem;
     font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: 0.01em;
-    color: var(--color-brand);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-cream);
+    text-wrap: balance;
   }
 
-  .tgva-staff-hiring-body {
-    margin-top: 8px;
-    font-size: 16px;
-    line-height: 1.7;
-    color: var(--color-ink-soft);
-    text-wrap: pretty;
+  .tgva-staff-hiring-perf {
+    margin-inline: 16px;
+    border-top: 2px dashed rgba(216, 166, 87, 0.4);
+  }
+
+  .tgva-staff-hiring-stub {
+    position: relative;
+    display: flex;
+    height: var(--stub);
+    align-items: center;
+    padding-inline: 1.5rem;
   }
 
   .tgva-staff-hiring-jump {
     display: inline-flex;
-    min-height: 44px;
+    min-height: 2.9rem;
     align-items: center;
-    gap: 8px;
-    margin-top: 2px;
+    gap: 0.75rem;
+    padding: 0 1.2rem 0 1.4rem;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1.5px rgba(247, 243, 238, 0.5);
     font-family: var(--font-display);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.04em;
-    color: var(--color-brand);
-    text-decoration: underline;
-    text-decoration-color: rgba(54, 10, 111, 0.28);
-    text-decoration-thickness: 1px;
-    text-underline-offset: 5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-cream);
     transition:
-      color 0.3s,
-      text-decoration-color 0.3s;
+      background-color 0.3s,
+      box-shadow 0.3s,
+      color 0.3s;
   }
 
   .tgva-staff-hiring-jump span {
@@ -6310,8 +6338,9 @@ select:disabled,
 
   .tgva-staff-hiring-jump:hover,
   .tgva-staff-hiring-jump:focus-visible {
-    color: var(--color-gold-deep);
-    text-decoration-color: currentColor;
+    background: var(--color-cream);
+    box-shadow: inset 0 0 0 1.5px var(--color-cream);
+    color: var(--color-brand);
   }
 
   .tgva-staff-hiring-jump:hover span,
@@ -6319,30 +6348,17 @@ select:disabled,
     translate: 4px 0;
   }
 
-  /* One column: the passes are below, several screens down, so the link
-     becomes a full-width control pointing down at them. */
+  /* One column: the passes are below, several screens down, so the panel
+     runs the full width and its link becomes a full-width control pointing
+     down at them. */
   @media (max-width: 47.99rem) {
     .tgva-staff-hiring {
       max-width: none;
     }
 
-    .tgva-staff-hiring-icon {
-      display: none;
-    }
-
-    .tgva-staff-hiring-text {
-      flex: 1;
-    }
-
     .tgva-staff-hiring-jump {
-      display: flex;
+      flex: 1;
       justify-content: space-between;
-      min-height: 48px;
-      margin-top: 14px;
-      padding-inline: 20px;
-      border-radius: 999px;
-      box-shadow: inset 0 0 0 1.5px rgba(54, 10, 111, 0.28);
-      text-decoration: none;
     }
 
     .tgva-staff-hiring-jump span {
@@ -7170,6 +7186,11 @@ select:disabled,
 
   .tgva-crewpass-stub {
     transition: none;
+  }
+
+  .tgva-staff-hiring:hover .tgva-staff-hiring-mark,
+  .tgva-staff-hiring:focus-within .tgva-staff-hiring-mark {
+    rotate: none;
   }
 
   .tgva-staff-tilt:has(.tgva-crewpass-stub a:hover) .tgva-crewpass-stub {
